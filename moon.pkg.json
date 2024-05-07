@@ -1,5 +1,3 @@
 {
-  "import": [
-    "yj-qin/regexp/lib"
-  ]
+  "import": ["yj-qin/regexp/lib"]
 }
