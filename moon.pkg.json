@@ -1,0 +1,5 @@
+{
+  "import": [
+    "yj-qin/regexp/lib"
+  ]
+}
