@@ -262,17 +262,18 @@ fn parse_group(self : Parser) -> Result[AstNode, String] {
   if self.more().not() {
     return Err(unmatched_group_begin)
   }
+  let index = self.group_index
+  self.group_index += 1
+  self.capture_num += 1
   let node : AstNode = Group(
+    ~index,
     capture=true,
-    index=self.group_index,
     node=self.parse_expr(true)?,
   )
   if self.more().not() || self.peek_is(')').not() {
     Err(group_missing_paren)
   } else {
     self.advance(1) // skip ')'
-    self.group_index += 1
-    self.capture_num += 1
     Ok(node)
   }
 }

@@ -73,6 +73,7 @@ test "parse group" {
     p("(abc)(def)"),
     content="Ok({root: Concat(Group[0](Concat(Char(a,false),Char(b,false),Char(c,false))),Group[1](Concat(Char(d,false),Char(e,false),Char(f,false)))), capture_num: 2})",
   )?
+  inspect(p("((a)bc)"), content="Ok({root: Group[0](Concat(Group[1](Char(a,false)),Char(b,false),Char(c,false))), capture_num: 2})")?
   inspect(p("(abc"), content="Err(group missing end paren)")?
 }
 
