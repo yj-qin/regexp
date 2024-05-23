@@ -83,20 +83,20 @@ fn empty(self : NfaBuilder) -> Nfa {
   let start = self.new_state()
   let end = self.new_state(end=true)
   start.epsilon_trans(end)
-  { states: [start, end], start, end }
+  { states: [start, end], start, end: [end] }
 }
 
 fn trans(self : NfaBuilder, kind : TransitionKind) -> Nfa {
   let start = self.new_state()
   let end = self.new_state(end=true)
   start.add_trans(kind, end)
-  { states: [start, end], start, end }
+  { states: [start, end], start, end: [end] }
 }
 
 struct Nfa {
   states : Array[State]
   start : State
-  end : State
+  end : Array[State]
 }
 
 fn Nfa::new(ast : Ast) -> Nfa {
@@ -108,6 +108,7 @@ fn Nfa::new(ast : Ast) -> Nfa {
 
 /// Simplifies the NFA, removes epsilon transitions and non-valid states.
 fn simplify(self : Nfa) -> Nfa {
+  let end_state = self.end[0]
   self.states.iter(
     fn(state) {
       if state.valid {
@@ -116,8 +117,9 @@ fn simplify(self : Nfa) -> Nfa {
         ec.iter(
           fn(ec_state) {
             ec_state.get_trans().iter(fn(t) { state.trans.push(t) })
-            if ec_state.id == self.end.id {
+            if ec_state == end_state {
               state.end = true
+              self.end.push(state)
             }
           },
         )
@@ -129,7 +131,6 @@ fn simplify(self : Nfa) -> Nfa {
   // remove non-valid states
   { ..self, states: self.states.filter(fn(s) { s.valid }) }
 }
-
 
 fn build(self : NfaBuilder, root : AstNode) -> Nfa {
   match root {
@@ -179,7 +180,7 @@ fn build(self : NfaBuilder, root : AstNode) -> Nfa {
 }
 
 fn concat(n1 : Nfa, n2 : Nfa) -> Nfa {
-  n1.end.add_trans(Epsilon, n2.start)
+  n1.end[0].add_trans(Epsilon, n2.start)
   let states = n1.states + n2.states
   { states, start: n1.start, end: n2.end }
 }
@@ -189,13 +190,13 @@ fn alt(self : NfaBuilder, n1 : Nfa, n2 : Nfa) -> Nfa {
   start.epsilon_trans(n1.start)
   start.epsilon_trans(n2.start)
   let end = self.new_state(end=true)
-  n1.end.epsilon_trans(end)
-  n2.end.epsilon_trans(end)
+  n1.end[0].epsilon_trans(end)
+  n2.end[0].epsilon_trans(end)
   let states = [start]
   states.append(n1.states)
   states.append(n2.states)
   states.push(end)
-  { states, start, end }
+  { states, start, end: [end] }
 }
 
 fn zero_or_more(self : NfaBuilder, n : Nfa) -> Nfa {
@@ -203,24 +204,24 @@ fn zero_or_more(self : NfaBuilder, n : Nfa) -> Nfa {
   let end = self.new_state(end=true)
   start.epsilon_trans(end)
   start.epsilon_trans(n.start)
-  n.end.epsilon_trans(n.start)
-  n.end.epsilon_trans(end)
+  n.end[0].epsilon_trans(n.start)
+  n.end[0].epsilon_trans(end)
   let states = [start]
   states.append(n.states)
   states.push(end)
-  { states, start, end }
+  { states, start, end: [end] }
 }
 
 fn one_or_more(self : NfaBuilder, n : Nfa) -> Nfa {
   let start = self.new_state()
   let end = self.new_state(end=true)
   start.epsilon_trans(n.start)
-  n.end.epsilon_trans(end)
-  n.end.epsilon_trans(n.start)
+  n.end[0].epsilon_trans(end)
+  n.end[0].epsilon_trans(n.start)
   let states = [start]
   states.append(n.states)
   states.push(end)
-  { states, start, end }
+  { states, start, end: [end] }
 }
 
 fn zero_or_one(self : NfaBuilder, n : Nfa) -> Nfa {
@@ -228,11 +229,11 @@ fn zero_or_one(self : NfaBuilder, n : Nfa) -> Nfa {
   let end = self.new_state(end=true)
   start.epsilon_trans(end)
   start.epsilon_trans(n.start)
-  n.end.epsilon_trans(end)
+  n.end[0].epsilon_trans(end)
   let states = [start]
   states.append(n.states)
   states.push(end)
-  { states, start, end }
+  { states, start, end: [end] }
 }
 
 fn to_string(self : Nfa) -> String {
@@ -244,7 +245,7 @@ fn to_string(self : Nfa) -> String {
       if s.id == self.start.id {
         buf.write_string(" START")
       }
-      if s.id == self.end.id {
+      if s.end {
         buf.write_string(" END")
       }
       buf.write_char('\n')

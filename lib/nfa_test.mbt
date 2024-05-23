@@ -1,5 +1,5 @@
 test "nfa" {
-  let ast = p("([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})")?
+  let ast = p("([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9-]+\\.[a-zA-Z]{2,})")?
   inspect(Nfa::new(ast), content=
     #|0. State #1 START
     #|	GroupStart(index=0, capture=true) -> State #2
@@ -13,9 +13,9 @@ test "nfa" {
     #|4. State #10
     #|	GroupStart(index=1, capture=true) -> State #12
     #|5. State #12
-    #|	Single(negated=false, chars=[97, 122, 65, 90, 48, 57, 46, 46, 45, 45]) -> State #16
+    #|	Single(negated=false, chars=[97, 122, 65, 90, 48, 57, 45, 45]) -> State #16
     #|6. State #16
-    #|	Single(negated=false, chars=[97, 122, 65, 90, 48, 57, 46, 46, 45, 45]) -> State #16
+    #|	Single(negated=false, chars=[97, 122, 65, 90, 48, 57, 45, 45]) -> State #16
     #|	Single(negated=false, chars=[46]) -> State #20
     #|7. State #20
     #|	Single(negated=false, chars=[97, 122, 65, 90]) -> State #24
