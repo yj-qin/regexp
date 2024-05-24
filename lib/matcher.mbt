@@ -107,13 +107,23 @@ pub fn matches(self : Matcher, str : String) -> Result[Bool, String] {
       GroupEnd(..) =>
         // TODO: record capture info
         self.goto(trans.to)
-      Assert(..) =>
-        // TODO: check assertion
-        self.goto(trans.to)
+      Assert(~kind) =>
+        if self.match_assert(kind) {
+          self.goto(trans.to)
+        } else {
+          continue
+        }
       _ => return Err("unknown transition")
     }
   }
   Ok(matched)
+}
+
+fn match_assert(self : Matcher, kind : AssertKind) -> Bool {
+  match kind {
+    BeginOfLine => self.cursor == 0
+    EndOfLine => self.cursor == self.input.length()
+  }
 }
 
 fn match_single_char(negated : Bool, chars : Array[Int], char : Char) -> Bool {
