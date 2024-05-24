@@ -8,10 +8,10 @@ pub enum AstNode {
   Plus(~target : AstNode)
   Quest(~target : AstNode)
   Repeat(~target : AstNode, ~min : Int, ~max : Option[Int])
-  Group(~capture : Bool, ~index : Int, ~node : AstNode)
+  Group(~capture : Bool, ~index : Int, ~name: String, ~node : AstNode)
   Alt(~nodes : Array[AstNode])
   Concat(~nodes : Array[AstNode])
-} derive(Eq)
+} derive(Eq, Show)
 
 pub enum AssertKind {
   BeginOfLine
@@ -78,9 +78,9 @@ fn debug_write(self : AstNode, buf : Buffer) -> Unit {
       target.debug_write(buf)
       buf.write_char(')')
     }
-    Group(~index, ~node, ..) => {
+    Group(~index, ~node, ~capture, ~name) => {
       buf.write_string("Group")
-      buf.write_string("[\(index)]")
+      buf.write_string("[\(index),capture:\(capture),name:\"\(name)\"]")
       buf.write_char('(')
       node.debug_write(buf)
       buf.write_char(')')
@@ -122,4 +122,14 @@ pub fn is_literal(self : AstNode) -> Bool {
 pub struct Ast {
   root : AstNode
   capture_num : Int
-} derive(Debug, Show)
+  capture_name_map: @map.Map[String, Int]
+} derive(Show)
+
+fn debug_write(self: Ast, buf: Buffer) -> Unit {
+  self.root.debug_write(buf)
+  buf.write_char('\n')
+  buf.write_string("capture_num: " + self.capture_num.to_string())
+  buf.write_char('\n')
+  buf.write_string("capture_name_map: ")
+  self.capture_name_map.debug_write(buf)
+}

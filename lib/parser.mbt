@@ -4,6 +4,12 @@ let unmatched_group_begin = "unmatched group begin"
 
 let unmatched_group_end = "unmatched group end"
 
+let unmatched_group_name = "unmatched group name"
+
+let empty_group_name = "empty group name"
+
+let empty_group = "empty group"
+
 let unmatched_char_class_end = "unmatched char class end"
 
 let unspecified_repeat_target = "unspecified repeat target"
@@ -28,10 +34,18 @@ struct Parser {
   mut pos_mark : Int
   mut group_index : Int
   mut capture_num : Int
+  mut capture_name_map : @map.Map[String, Int]
 }
 
 fn Parser::new(pattern : String) -> Parser {
-  { pattern, pos: 0, pos_mark: 0, group_index: 0, capture_num: 0 }
+  {
+    pattern,
+    pos: 0,
+    pos_mark: 0,
+    group_index: 0,
+    capture_num: 0,
+    capture_name_map: @map.Map::[],
+  }
 }
 
 fn pos(self : Parser) -> Int {
@@ -107,7 +121,13 @@ fn fetch_unsigned_num(self : Parser) -> Option[Int] {
 
 fn parse(self : Parser) -> Result[Ast, String] {
   let root = self.parse_expr(false)?
-  Ok({ root, capture_num: self.capture_num })
+  Ok(
+    {
+      root,
+      capture_num: self.capture_num,
+      capture_name_map: self.capture_name_map,
+    },
+  )
 }
 
 fn parse_expr(self : Parser, in_group : Bool) -> Result[AstNode, String] {
@@ -117,7 +137,7 @@ fn parse_expr(self : Parser, in_group : Bool) -> Result[AstNode, String] {
   } else if self.peek_is('|') {
     let alt_nodes = [node]
     while self.peek_is('|') {
-      self.advance(1) // skip |
+      self.advance(1) // |
       alt_nodes.push(self.parse_concat_nodes(in_group)?)
     }
     if self.more() {
@@ -240,7 +260,7 @@ fn parse_repeat_range(
     return Err(invalid_repeat_range)
   }
   let max : Option[Int] = if self.peek_is(',') {
-    self.advance(1) // skip ','
+    self.advance(1) // ','
     self.fetch_unsigned_num()
   } else {
     Some(min)
@@ -251,7 +271,7 @@ fn parse_repeat_range(
   if self.more().not() || self.peek_is('}').not() {
     return Err(invalid_repeat_range)
   }
-  self.advance(1) // skip '}'
+  self.advance(1) // '}'
   if max.is_empty().not() && min > max.unwrap() {
     return Err(repeat_max_smaller_than_min)
   }
@@ -262,20 +282,58 @@ fn parse_group(self : Parser) -> Result[AstNode, String] {
   if self.more().not() {
     return Err(unmatched_group_begin)
   }
+  let mut capture = true
+  let mut name = ""
   let index = self.group_index
   self.group_index += 1
   self.capture_num += 1
+  if self.peek_is('?') {
+    self.advance(1) // '?'
+    match self.peek() {
+      ':' => {
+        capture = false
+        self.capture_num -= 1
+        self.advance(1) // ':'
+      }
+      '<' => {
+        name = self.parse_group_name()?
+        if name == "" {
+          return Err(empty_group_name)
+        }
+        self.capture_name_map = self.capture_name_map.insert(name, index)
+      }
+      _ => ()
+    }
+  }
+  if self.more().not() || self.peek_is(')') {
+    return Err(empty_group)
+  }
   let node : AstNode = Group(
     ~index,
-    capture=true,
+    ~capture,
+    ~name,
     node=self.parse_expr(true)?,
   )
   if self.more().not() || self.peek_is(')').not() {
     Err(group_missing_paren)
   } else {
-    self.advance(1) // skip ')'
+    self.advance(1) // ')'
     Ok(node)
   }
+}
+
+fn parse_group_name(self : Parser) -> Result[String, String] {
+  self.advance(1) // '<'
+  let buf = Buffer::make(0)
+  while self.more() && self.peek_is('>').not() {
+    buf.write_char(self.peek())
+    self.advance(1)
+  }
+  if self.peek_is('>').not() {
+    return Err(unmatched_group_name)
+  }
+  self.advance(1) // '>'
+  Ok(buf.to_string())
 }
 
 fn parse_class(self : Parser) -> Result[AstNode, String] {
@@ -292,18 +350,18 @@ fn parse_class(self : Parser) -> Result[AstNode, String] {
     if self.peek_is(']') && first {
       chars.push(']'.to_int())
       chars.push(']'.to_int())
-      self.advance(1) // skip ']'
+      self.advance(1) // ']'
     }
     if self.peek_is('-') && first {
       chars.push('-'.to_int())
       chars.push('-'.to_int())
-      self.advance(1) // skip '-'
+      self.advance(1) // '-'
     }
     first = false
     let low = self.parse_char_class_char()?
     let mut high = low
     if self.more() && self.peek_is('-') {
-      self.advance(1) // skip '-'
+      self.advance(1) // '-'
       if self.more() && self.peek_is(']') {
         // '-' is the last char
         self.rewind(1)
@@ -317,7 +375,7 @@ fn parse_class(self : Parser) -> Result[AstNode, String] {
   if self.more().not() || self.peek_is(']').not() {
     return Err(class_missing_bracket)
   } else {
-    self.advance(1) // skip ']'
+    self.advance(1) // ']'
     Ok(CharClass(~negated, ~chars))
   }
 }

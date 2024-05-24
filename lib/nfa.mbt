@@ -2,8 +2,8 @@ enum TransitionKind {
   Epsilon
   Single(~negated : Bool, ~chars : Array[Int])
   Any
-  GroupStart(~index : Int, ~capture : Bool)
-  GroupEnd(~index : Int)
+  CaptureStart(~index : Int)
+  CaptureEnd(~index : Int)
   Assert(~kind : AssertKind)
 } derive(Debug, Show)
 
@@ -20,7 +20,7 @@ fn is_epsilon(self : Transition) -> Bool {
 }
 
 struct State {
-  id : Int
+  mut id : Int
   mut end : Bool
   mut valid : Bool
   mut trans : Array[Transition]
@@ -46,6 +46,14 @@ fn epsilon_trans(self : State, to : State) -> Unit {
   self.add_trans(Epsilon, to)
 }
 
+fn get_trans(self : State) -> Array[Transition] {
+  self.trans.filter(fn(t) { t.is_epsilon().not() })
+}
+
+fn get_epsilon_trans(self : State) -> Array[Transition] {
+  self.trans.filter(fn(t) { t.is_epsilon() })
+}
+
 fn epsilon_closure(self : State) -> Array[State] {
   let closure = []
   let q = @queue.new()
@@ -58,12 +66,8 @@ fn epsilon_closure(self : State) -> Array[State] {
   closure
 }
 
-fn get_trans(self : State) -> Array[Transition] {
-  self.trans.filter(fn(t) { t.is_epsilon().not() })
-}
-
-fn get_epsilon_trans(self : State) -> Array[Transition] {
-  self.trans.filter(fn(t) { t.is_epsilon() })
+fn remove_epsilon_trans(self : State) -> Unit {
+  self.trans = self.get_trans()
 }
 
 struct NfaBuilder {
@@ -107,12 +111,17 @@ fn Nfa::new(ast : Ast) -> Nfa {
 }
 
 /// Simplifies the NFA, removes epsilon transitions and non-valid states.
+/// 1. get non-epsilon transitions from the epsilon closure and add to current state.
+/// 2. remove epsilon transitions.
+/// 3. remove non-valid states.
 fn simplify(self : Nfa) -> Nfa {
   let end_state = self.end[0]
+  let mut id = 0
   self.states.iter(
     fn(state) {
       if state.valid {
-        // get non-epsilon transitions from the epsilon closure and add to current state.
+        state.id = id
+        id += 1
         let ec = state.epsilon_closure()
         ec.iter(
           fn(ec_state) {
@@ -124,11 +133,9 @@ fn simplify(self : Nfa) -> Nfa {
           },
         )
       }
-      // remove epsilon transitions
-      state.trans = state.get_trans()
+      state.remove_epsilon_trans()
     },
   )
-  // remove non-valid states
   { ..self, states: self.states.filter(fn(s) { s.valid }) }
 }
 
@@ -170,11 +177,15 @@ fn build(self : NfaBuilder, root : AstNode) -> Nfa {
       nfa
     }
     Assert(~kind) => self.trans(Assert(~kind))
-    Group(~index, ~capture, ~node) => {
-      let left = self.trans(GroupStart(~index, ~capture))
-      let right = self.trans(GroupEnd(~index))
+    Group(~index, ~capture, ~node, ..) => {
       let sub = self.build(node)
-      concat(concat(left, sub), right)
+      if capture {
+        let left = self.trans(CaptureStart(~index))
+        let right = self.trans(CaptureEnd(~index))
+        concat(concat(left, sub), right)
+      } else {
+        sub
+      }
     }
   }
 }

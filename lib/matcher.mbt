@@ -1,29 +1,77 @@
 struct Snapshot {
   state_id : Int
-  cursor : Int
+  start_pos : Int
+  pos : Int
   trans : Int
+  captures : FixedArray[Capture]
+}
+
+struct Capture {
+  mut start : Int
+  mut end : Int
+}
+
+fn valid(self : Capture) -> Bool {
+  self.start > -1 && self.end > -1
 }
 
 struct Matcher {
-  states : @hashmap.HashMap[Int, State]
+  nfa : Nfa
+  snapshots : Array[Snapshot]
   mut input : Array[Char]
-  mut cursor : Int
+  mut start_pos : Int
+  mut pos : Int
   mut state : State
   mut trans : Int
-  snapshots : Array[Snapshot]
+  mut captures : FixedArray[Capture]
+  capture_name_map : @map.Map[String, Int]
+}
+
+fn Matcher::new(nfa : Nfa, ast : Ast) -> Result[Matcher, String] {
+  Ok(
+    {
+      nfa,
+      snapshots: [],
+      input: [],
+      start_pos: 0,
+      pos: 0,
+      state: nfa.start,
+      trans: 0,
+      captures: @fixedarray.new(
+        ast.capture_num,
+        fn() { { start: -1, end: -1 } },
+      ),
+      capture_name_map: ast.capture_name_map,
+    },
+  )
+}
+
+fn reset(self : Matcher) -> Unit {
+  self.input.clear()
+  self.snapshots.clear()
+  self.start_pos = 0
+  self.pos = 0
+  self.trans = 0
+  self.state = self.nfa.start
 }
 
 fn get_char(self : Matcher) -> Char {
-  self.input[self.cursor]
+  self.input[self.pos]
 }
 
 fn more_char(self : Matcher) -> Bool {
-  self.cursor < self.input.length()
+  self.pos < self.input.length()
 }
 
 fn snapshot(self : Matcher) -> Unit {
   self.snapshots.push(
-    { state_id: self.state.id, cursor: self.cursor, trans: self.trans },
+    {
+      state_id: self.state.id,
+      start_pos: self.start_pos,
+      pos: self.pos,
+      trans: self.trans,
+      captures: self.captures,
+    },
   )
 }
 
@@ -32,9 +80,11 @@ fn backtrack(self : Matcher) -> Bool {
     return false
   }
   let snapshot = self.snapshots.pop_exn()
-  self.state = self.states[snapshot.state_id].unwrap()
-  self.cursor = snapshot.cursor
+  self.state = self.nfa.states[snapshot.state_id]
+  self.pos = snapshot.pos
+  self.start_pos = snapshot.start_pos
   self.trans = snapshot.trans
+  self.captures = snapshot.captures
   true
 }
 
@@ -53,18 +103,43 @@ fn goto(self : Matcher, state : State) -> Unit {
   self.trans = 0
 }
 
-pub fn Matcher::new(pattern : String) -> Result[Matcher, String] {
-  let ast = Parser::new(pattern).parse()?
-  let nfa = Nfa::new(ast)
-  let states = @hashmap.HashMap::new()
-  nfa.states.iter(fn(s) { states[s.id] = s })
-  Ok(
-    { states, input: [], cursor: 0, state: nfa.start, trans: 0, snapshots: [] },
-  )
+fn next_start_pos(self : Matcher) -> Bool {
+  if self.start_pos == self.input.length() - 1 {
+    return false
+  }
+  self.start_pos += 1
+  self.pos = self.start_pos
+  self.state = self.nfa.start
+  self.trans = 0
+  true
 }
 
-pub fn matches(self : Matcher, str : String) -> Result[Bool, String] {
-  self.input = str.to_array()
+fn capture_result(self : Matcher) -> Array[String] {
+  let arr = []
+  let buf = Buffer::make(0)
+  for i = self.start_pos; i < self.pos; i = i + 1 {
+    buf.write_char(self.input[i])
+  }
+  arr.push(buf.to_string())
+  self.captures.iter(
+    fn(cap) {
+      if cap.valid() {
+        buf.reset()
+        for i = cap.start; i < cap.end; i = i + 1 {
+          buf.write_char(self.input[i])
+        }
+        arr.push(buf.to_string())
+      } else {
+        arr.push("")
+      }
+    },
+  )
+  arr
+}
+
+fn matches(self : Matcher, input : String) -> Result[MatchResult, String] {
+  self.reset()
+  self.input = input.to_array()
   let mut matched = false
   while true {
     if self.state.end {
@@ -76,9 +151,12 @@ pub fn matches(self : Matcher, str : String) -> Result[Bool, String] {
       // no more path to go, backtrack.
       if self.backtrack() {
         continue
-      } else {
-        break
       }
+      // stack empty, start from next start pos.
+      if self.next_start_pos() {
+        continue
+      }
+      break
     }
     let trans = trans_opt.unwrap()
     match trans.kind {
@@ -88,7 +166,7 @@ pub fn matches(self : Matcher, str : String) -> Result[Bool, String] {
           continue
         }
         if match_single_char(negated, chars, self.get_char()) {
-          self.cursor += 1
+          self.pos += 1
           self.goto(trans.to)
         } else {
           continue
@@ -98,15 +176,17 @@ pub fn matches(self : Matcher, str : String) -> Result[Bool, String] {
         if self.more_char().not() {
           continue
         }
-        self.cursor += 1
+        self.pos += 1
         self.goto(trans.to)
       }
-      GroupStart(..) =>
-        // TODO: record capture info
+      CaptureStart(~index) => {
+        self.captures[index].start = self.pos
         self.goto(trans.to)
-      GroupEnd(..) =>
-        // TODO: record capture info
+      }
+      CaptureEnd(~index) => {
+        self.captures[index].end = self.pos
         self.goto(trans.to)
+      }
       Assert(~kind) =>
         if self.match_assert(kind) {
           self.goto(trans.to)
@@ -116,13 +196,19 @@ pub fn matches(self : Matcher, str : String) -> Result[Bool, String] {
       _ => return Err("unknown transition")
     }
   }
-  Ok(matched)
+  Ok(
+    {
+      success: matched,
+      captures: self.capture_result(),
+      capture_name_map: self.capture_name_map,
+    },
+  )
 }
 
 fn match_assert(self : Matcher, kind : AssertKind) -> Bool {
   match kind {
-    BeginOfLine => self.cursor == 0
-    EndOfLine => self.cursor == self.input.length()
+    BeginOfLine => self.pos == 0
+    EndOfLine => self.pos == self.input.length()
   }
 }
 
