@@ -1,15 +1,37 @@
-fn p(s : String) -> Result[Ast, String] {
+fn test_parse(s : String) -> Result[Ast, String] {
   Parser::new(s).parse()
 }
+
+// #region single
+test "should parse single char" {
+  inspect(
+    test_parse("a"),
+    content=
+      #|Ok(
+      #|Number of captures: 0
+      #|Capture name mapping: Map::[]
+      #|Ast:
+      #|Single a
+      #|)
+    ,
+  )?
+}
+// #endregion
 
 // #region concat
 test "should parse concat" {
   inspect(
-    p("abc"),
+    test_parse("abc"),
     content=
-      #|Ok(Concat(Char(a,false),Char(b,false),Char(c,false))
-      #|capture_num: 0
-      #|capture_name_map: Map::[])
+      #|Ok(
+      #|Number of captures: 0
+      #|Capture name mapping: Map::[]
+      #|Ast:
+      #|Concatenate
+      #|  Single a
+      #|  Single b
+      #|  Single c
+      #|)
     ,
   )?
 }
@@ -18,11 +40,17 @@ test "should parse concat" {
 // #region alt
 test "should parse alt" {
   inspect(
-    p("a|b|c"),
+    test_parse("a|b|c"),
     content=
-      #|Ok(Alt(Char(a,false),Char(b,false),Char(c,false))
-      #|capture_num: 0
-      #|capture_name_map: Map::[])
+      #|Ok(
+      #|Number of captures: 0
+      #|Capture name mapping: Map::[]
+      #|Ast:
+      #|Alternate
+      #|  Single a
+      #|  Single b
+      #|  Single c
+      #|)
     ,
   )?
 }
@@ -30,247 +58,369 @@ test "should parse alt" {
 
 // #region repeat
 test "should parse star" {
-  inspect(
-    p("a*"),
-    content=
-      #|Ok(Star(Char(a,false))
-      #|capture_num: 0
-      #|capture_name_map: Map::[])
-    ,
+  inspect(test_parse("a*"), content=
+    #|Ok(
+    #|Number of captures: 0
+    #|Capture name mapping: Map::[]
+    #|Ast:
+    #|SingleLoop {0,} a
+    #|)
   )?
 }
 
 test "should parse plus" {
-  inspect(
-    p("a+"),
-    content=
-      #|Ok(Plus(Char(a,false))
-      #|capture_num: 0
-      #|capture_name_map: Map::[])
-    ,
+  inspect(test_parse("a+"), content=
+    #|Ok(
+    #|Number of captures: 0
+    #|Capture name mapping: Map::[]
+    #|Ast:
+    #|SingleLoop {1,} a
+    #|)
   )?
 }
 
 test "should parse quest" {
-  inspect(
-    p("a?"),
-    content=
-      #|Ok(Quest(Char(a,false))
-      #|capture_num: 0
-      #|capture_name_map: Map::[])
-    ,
+  inspect(test_parse("a?"), content=
+    #|Ok(
+    #|Number of captures: 0
+    #|Capture name mapping: Map::[]
+    #|Ast:
+    #|SingleLoop {0,1} a
+    #|)
   )?
 }
 
-test "should parse exact repeat" {
-  inspect(
-    p("a{2}"),
-    content=
-      #|Ok(Repeat{2,2}(Char(a,false))
-      #|capture_num: 0
-      #|capture_name_map: Map::[])
-    ,
+test "should parse exact loop" {
+  inspect(test_parse("a{2}"), content=
+    #|Ok(
+    #|Number of captures: 0
+    #|Capture name mapping: Map::[]
+    #|Ast:
+    #|SingleLoop {2} a
+    #|)
   )?
 }
 
-test "should parse repeat [min, max]" {
-  inspect(
-    p("a{1,2}"),
-    content=
-      #|Ok(Repeat{1,2}(Char(a,false))
-      #|capture_num: 0
-      #|capture_name_map: Map::[])
-    ,
+test "should parse loop [min, max]" {
+  inspect(test_parse("a{1,2}"), content=
+    #|Ok(
+    #|Number of captures: 0
+    #|Capture name mapping: Map::[]
+    #|Ast:
+    #|SingleLoop {1,2} a
+    #|)
   )?
 }
 
-test "should parse repeat [min, infinity]" {
-  inspect(
-    p("a{0,}"),
-    content=
-      #|Ok(Repeat{0,}(Char(a,false))
-      #|capture_num: 0
-      #|capture_name_map: Map::[])
-    ,
+test "should parse loop [min, infinity]" {
+  inspect(test_parse("a{0,}"), content=
+    #|Ok(
+    #|Number of captures: 0
+    #|Capture name mapping: Map::[]
+    #|Ast:
+    #|SingleLoop {0,} a
+    #|)
   )?
 }
 
-test "throws on invalid repeat" {
-  inspect(p("a{,1}"), content="Err(invalid repeat range)")?
-  inspect(p("a{0,1"), content="Err(invalid repeat range)")?
-  inspect(p("a{}"), content="Err(invalid repeat range)")?
+test "should parse non-greedy" {
+  inspect(test_parse("a*?"), content=
+    #|Ok(
+    #|Number of captures: 0
+    #|Capture name mapping: Map::[]
+    #|Ast:
+    #|SingleLoopNG {0,} a
+    #|)
+  )?
+  inspect(test_parse("a+?"), content=
+    #|Ok(
+    #|Number of captures: 0
+    #|Capture name mapping: Map::[]
+    #|Ast:
+    #|SingleLoopNG {1,} a
+    #|)
+  )?
+  inspect(test_parse("a??"), content=
+    #|Ok(
+    #|Number of captures: 0
+    #|Capture name mapping: Map::[]
+    #|Ast:
+    #|SingleLoopNG {0,1} a
+    #|)
+  )?
+  inspect(test_parse("a{0,2}?"), content=
+    #|Ok(
+    #|Number of captures: 0
+    #|Capture name mapping: Map::[]
+    #|Ast:
+    #|SingleLoopNG {0,2} a
+    #|)
+  )?
+}
+
+test "throws on invalid loop" {
+  inspect(test_parse("a{,1}"), content="Err(invalid loop)")?
+  inspect(test_parse("a{0,1"), content="Err(invalid loop)")?
+  inspect(test_parse("a{}"), content="Err(invalid loop)")?
 }
 // #endregion
 
 // #region class
 test "should parse class" {
   inspect(
-    p("[abc]"),
+    test_parse("[abc]"),
     content=
-      #|Ok(Class(abc)
-      #|capture_num: 0
-      #|capture_name_map: Map::[])
+      #|Ok(
+      #|Number of captures: 0
+      #|Capture name mapping: Map::[]
+      #|Ast:
+      #|Class [97, 97, 98, 98, 99, 99]
+      #|)
     ,
   )?
 }
 
 test "should parse range class" {
   inspect(
-    p("[a-z]"),
+    test_parse("[a-z]"),
     content=
-      #|Ok(Class(a-z)
-      #|capture_num: 0
-      #|capture_name_map: Map::[])
+      #|Ok(
+      #|Number of captures: 0
+      #|Capture name mapping: Map::[]
+      #|Ast:
+      #|Class [97, 122]
+      #|)
     ,
   )?
   inspect(
-    p("[a-zA-Z]"),
+    test_parse("[a-zA-Z]"),
     content=
-      #|Ok(Class(a-zA-Z)
-      #|capture_num: 0
-      #|capture_name_map: Map::[])
+      #|Ok(
+      #|Number of captures: 0
+      #|Capture name mapping: Map::[]
+      #|Ast:
+      #|Class [97, 122, 65, 90]
+      #|)
     ,
   )?
   inspect(
-    p("[0-9]"),
+    test_parse("[0-9]"),
     content=
-      #|Ok(Class(0-9)
-      #|capture_num: 0
-      #|capture_name_map: Map::[])
+      #|Ok(
+      #|Number of captures: 0
+      #|Capture name mapping: Map::[]
+      #|Ast:
+      #|Class [48, 57]
+      #|)
     ,
   )?
 }
 
 test "should parse negated class" {
   inspect(
-    p("[^abc]"),
+    test_parse("[^abc]"),
     content=
-      #|Ok(Class(^abc)
-      #|capture_num: 0
-      #|capture_name_map: Map::[])
+      #|Ok(
+      #|Number of captures: 0
+      #|Capture name mapping: Map::[]
+      #|Ast:
+      #|Class Neg [97, 97, 98, 98, 99, 99]
+      #|)
     ,
   )?
 }
 
 test "throws on unclosed class" {
-  inspect(p("[abc"), content="Err(class missing end bracket)")?
+  inspect(test_parse("[abc"), content="Err(class missing end bracket)")?
 }
 // #endregion
 
 // #region group
 test "should parse group" {
   inspect(
-    p("(a)"),
+    test_parse("(a)"),
     content=
-      #|Ok(Group[0,capture:true,name:""](Char(a,false))
-      #|capture_num: 1
-      #|capture_name_map: Map::[])
+      #|Ok(
+      #|Number of captures: 1
+      #|Capture name mapping: Map::[]
+      #|Ast:
+      #|Capture 0
+      #|  Single a
+      #|)
     ,
   )?
   inspect(
-    p("(a)(b)"),
+    test_parse("(a)(b)"),
     content=
-      #|Ok(Concat(Group[0,capture:true,name:""](Char(a,false)),Group[1,capture:true,name:""](Char(b,false)))
-      #|capture_num: 2
-      #|capture_name_map: Map::[])
+      #|Ok(
+      #|Number of captures: 2
+      #|Capture name mapping: Map::[]
+      #|Ast:
+      #|Concatenate
+      #|  Capture 0
+      #|    Single a
+      #|  Capture 1
+      #|    Single b
+      #|)
     ,
   )?
 }
 
 test "should parse nested group" {
   inspect(
-    p("((a)bc)"),
+    test_parse("((a)bc)"),
     content=
-      #|Ok(Group[0,capture:true,name:""](Concat(Group[1,capture:true,name:""](Char(a,false)),Char(b,false),Char(c,false)))
-      #|capture_num: 2
-      #|capture_name_map: Map::[])
+      #|Ok(
+      #|Number of captures: 2
+      #|Capture name mapping: Map::[]
+      #|Ast:
+      #|Capture 0
+      #|  Concatenate
+      #|    Capture 1
+      #|      Single a
+      #|    Single b
+      #|    Single c
+      #|)
     ,
   )?
 }
 
 test "should parse nested group concat" {
   inspect(
-    p("((a)(b))"),
+    test_parse("((a)(b))"),
     content=
-      #|Ok(Group[0,capture:true,name:""](Concat(Group[1,capture:true,name:""](Char(a,false)),Group[2,capture:true,name:""](Char(b,false))))
-      #|capture_num: 3
-      #|capture_name_map: Map::[])
+      #|Ok(
+      #|Number of captures: 3
+      #|Capture name mapping: Map::[]
+      #|Ast:
+      #|Capture 0
+      #|  Concatenate
+      #|    Capture 1
+      #|      Single a
+      #|    Capture 2
+      #|      Single b
+      #|)
     ,
   )?
 }
 
 test "should parse nested group alt" {
-  // FIXME:
-  inspect(p("((a)|(b))"), content="Err(internal parser error)")?
+  inspect(test_parse("((a)|bc)"), content=
+    #|Ok(
+    #|Number of captures: 2
+    #|Capture name mapping: Map::[]
+    #|Ast:
+    #|Capture 0
+    #|  Alternate
+    #|    Capture 1
+    #|      Single a
+    #|    Concatenate
+    #|      Single b
+    #|      Single c
+    #|)
+  )?
+  inspect(test_parse("((a)|(b))"), content=
+    #|Ok(
+    #|Number of captures: 3
+    #|Capture name mapping: Map::[]
+    #|Ast:
+    #|Capture 0
+    #|  Alternate
+    #|    Capture 1
+    #|      Single a
+    #|    Capture 2
+    #|      Single b
+    #|)
+  )?
 }
 
 test "should parse non-capturing group" {
   inspect(
-    p("(?:a)"),
+    test_parse("(?:a)"),
     content=
-      #|Ok(Group[0,capture:false,name:""](Char(a,false))
-      #|capture_num: 0
-      #|capture_name_map: Map::[])
+      #|Ok(
+      #|Number of captures: 0
+      #|Capture name mapping: Map::[]
+      #|Ast:
+      #|Group
+      #|  Single a
+      #|)
     ,
   )?
 }
 
 test "should parse named group" {
   inspect(
-    p("(?<group1>a)"),
+    test_parse("(?<group1>a)"),
     content=
-      #|Ok(Group[0,capture:true,name:"group1"](Char(a,false))
-      #|capture_num: 1
-      #|capture_name_map: Map::[("group1", 0)])
+      #|Ok(
+      #|Number of captures: 1
+      #|Capture name mapping: Map::[("group1", 0)]
+      #|Ast:
+      #|Capture 0
+      #|  Single a
+      #|)
     ,
   )?
 }
 
 test "throws on unclosed group" {
-  inspect(p("(abc"), content="Err(group missing end paren)")?
+  inspect(test_parse("(abc"), content="Err(group missing end paren)")?
 }
 
 test "throws on empty group" {
-  inspect(p("()"), content="Err(empty group)")?
+  inspect(test_parse("()"), content="Err(empty group)")?
 }
 
 test "throws on empty group name" {
-  inspect(p("(?<>abc)"), content="Err(empty group name)")?
+  inspect(test_parse("(?<>abc)"), content="Err(empty group name)")?
 }
 // #endregion
 
 // #region escape
 test "should parse escape" {
   inspect(
-    p("\\*"),
+    test_parse("\\*"),
     content=
-      #|Ok(Char(*,true)
-      #|capture_num: 0
-      #|capture_name_map: Map::[])
+      #|Ok(
+      #|Number of captures: 0
+      #|Capture name mapping: Map::[]
+      #|Ast:
+      #|Single *
+      #|)
     ,
   )?
   inspect(
-    p("\\+"),
+    test_parse("\\+"),
     content=
-      #|Ok(Char(+,true)
-      #|capture_num: 0
-      #|capture_name_map: Map::[])
+      #|Ok(
+      #|Number of captures: 0
+      #|Capture name mapping: Map::[]
+      #|Ast:
+      #|Single +
+      #|)
     ,
   )?
   inspect(
-    p("\\?"),
+    test_parse("\\?"),
     content=
-      #|Ok(Char(?,true)
-      #|capture_num: 0
-      #|capture_name_map: Map::[])
+      #|Ok(
+      #|Number of captures: 0
+      #|Capture name mapping: Map::[]
+      #|Ast:
+      #|Single ?
+      #|)
     ,
   )?
   inspect(
-    p("\\a"),
+    test_parse("\\a"),
     content=
-      #|Ok(Char(a,true)
-      #|capture_num: 0
-      #|capture_name_map: Map::[])
+      #|Ok(
+      #|Number of captures: 0
+      #|Capture name mapping: Map::[]
+      #|Ast:
+      #|Single a
+      #|)
     ,
   )?
 }
@@ -278,13 +428,23 @@ test "should parse escape" {
 
 // #region common
 test "should parse common regexp" {
-  inspect(
-    p("^([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$"),
-    content=
-      #|Ok(Concat(Assert(BeginOfLine),Group[0,capture:true,name:""](Plus(Class(a-zA-Z0-9._%+-))),Char(@,false),Group[1,capture:true,name:""](Concat(Plus(Class(a-zA-Z0-9.-)),Char(.,true),Repeat{2,}(Class(a-zA-Z)))),Assert(EndOfLine))
-      #|capture_num: 2
-      #|capture_name_map: Map::[])
-    ,
+  inspect(test_parse("^([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$"), content=
+    #|Ok(
+    #|Number of captures: 2
+    #|Capture name mapping: Map::[]
+    #|Ast:
+    #|Concatenate
+    #|  BeginOfLine
+    #|  Capture 0
+    #|    ClassLoop {1,} [97, 122, 65, 90, 48, 57, 46, 46, 95, 95, 37, 37, 43, 43, 45, 45]
+    #|  Single @
+    #|  Capture 1
+    #|    Concatenate
+    #|      ClassLoop {1,} [97, 122, 65, 90, 48, 57, 46, 46, 45, 45]
+    #|      Single .
+    #|      ClassLoop {2,} [97, 122, 65, 90]
+    #|  EndOfLine
+    #|)
   )?
 }
 // #endregion

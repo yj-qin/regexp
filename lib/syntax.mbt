@@ -1,135 +1,141 @@
-pub enum AstNode {
+enum AstNodeInternal {
+  // Leave nodes of the AST.
   Empty
-  Any
-  Char(~char : Int, ~escaped : Bool)
-  CharClass(~negated : Bool, ~chars : Array[Int])
-  Assert(~kind : AssertKind)
-  Star(~target : AstNode)
-  Plus(~target : AstNode)
-  Quest(~target : AstNode)
-  Repeat(~target : AstNode, ~min : Int, ~max : Option[Int])
-  Group(~capture : Bool, ~index : Int, ~name: String, ~node : AstNode)
-  Alt(~nodes : Array[AstNode])
-  Concat(~nodes : Array[AstNode])
-} derive(Eq, Show)
-
-pub enum AssertKind {
+  //Nothing
+  Single(~char : Char)
+  NotSingle(~char : Char)
+  Class(~neg : Bool, ~chars : Array[Int])
+  //Multi(~str : String)
+  SingleLoop(~char : Char, ~min : Int, ~max : Option[Int])
+  NotSingleLoop(~char : Char, ~min : Int, ~max : Option[Int])
+  ClassLoop(~neg : Bool, ~chars : Array[Int], ~min : Int, ~max : Option[Int])
+  SingleLoopNG(~char : Char, ~min : Int, ~max : Option[Int])
+  NotSingleLoopNG(~char : Char, ~min : Int, ~max : Option[Int])
+  ClassLoopNG(~neg : Bool, ~chars : Array[Int], ~min : Int, ~max : Option[Int])
+  //Backreference(~index : Int)
   BeginOfLine
   EndOfLine
-} derive(Debug, Show, Eq)
+  // Branch nodes of the AST that have at least one child.
+  Alternate
+  Concatenate
+  Loop(~min : Int, ~max : Option[Int])
+  LoopNG(~min : Int, ~max : Option[Int])
+  Capture(~index : Int)
+  Group
+} derive(Eq)
 
-fn debug_write(self : AstNode, buf : Buffer) -> Unit {
+fn to_string(self : AstNodeInternal) -> String {
+  fn range_to_string(min : Int, max : Option[Int]) {
+    match max {
+      Some(max) => if min == max { "{\(min)} " } else { "{\(min),\(max)} " }
+      None => "{\(min),} "
+    }
+  }
+
   match self {
-    Empty => buf.write_string("Empty")
-    Char(~char, ~escaped) => {
-      buf.write_string("Char(")
-      buf.write_char(Char::from_int(char))
-      buf.write_string(",\(escaped)")
-      buf.write_char(')')
-    }
-    Any => buf.write_string("Any")
-    Assert(~kind) => {
-      buf.write_string("Assert(")
-      buf.write_string(kind.to_string())
-      buf.write_char(')')
-    }
-    CharClass(~negated, ~chars) => {
-      buf.write_string("Class(")
-      if negated {
-        buf.write_char('^')
-      }
-      for i = 0; i < chars.length(); i = i + 2 {
-        if chars[i] == chars[i + 1] {
-          buf.write_char(Char::from_int(chars[i]))
-        } else {
-          buf.write_char(Char::from_int(chars[i]))
-          buf.write_char('-')
-          buf.write_char(Char::from_int(chars[i + 1]))
-        }
-      }
-      buf.write_char(')')
-    }
-    Repeat(~target, ~min, ~max) => {
-      buf.write_string("Repeat")
-      buf.write_string("{\(min),")
-      if max.is_empty().not() {
-        buf.write_string(max.unwrap().to_string())
-      }
-      buf.write_char('}')
-      buf.write_char('(')
-      target.debug_write(buf)
-      buf.write_char(')')
-    }
-    Star(~target) => {
-      buf.write_string("Star")
-      buf.write_char('(')
-      target.debug_write(buf)
-      buf.write_char(')')
-    }
-    Plus(~target) => {
-      buf.write_string("Plus")
-      buf.write_char('(')
-      target.debug_write(buf)
-      buf.write_char(')')
-    }
-    Quest(~target) => {
-      buf.write_string("Quest")
-      buf.write_char('(')
-      target.debug_write(buf)
-      buf.write_char(')')
-    }
-    Group(~index, ~node, ~capture, ~name) => {
-      buf.write_string("Group")
-      buf.write_string("[\(index),capture:\(capture),name:\"\(name)\"]")
-      buf.write_char('(')
-      node.debug_write(buf)
-      buf.write_char(')')
-    }
-    Alt(~nodes) => {
-      buf.write_string("Alt(")
-      nodes.iteri(
-        fn(i, node) {
-          if i > 0 {
-            buf.write_char(',')
-          }
-          node.debug_write(buf)
-        },
-      )
-      buf.write_char(')')
-    }
-    Concat(~nodes) => {
-      buf.write_string("Concat(")
-      nodes.iteri(
-        fn(i, node) {
-          if i > 0 {
-            buf.write_char(',')
-          }
-          node.debug_write(buf)
-        },
-      )
-      buf.write_char(')')
-    }
+    Empty => "Empty"
+    Single(~char) => "Single " + char.to_string()
+    NotSingle(~char) => "NotSingle " + char.to_string()
+    Class(~neg, ~chars) =>
+      "Class " + if neg { "Neg " } else { "" } + chars.to_string()
+    SingleLoop(~char, ~min, ~max) =>
+      "SingleLoop " + range_to_string(min, max) + char.to_string()
+    NotSingleLoop(~char, ~min, ~max) =>
+      "NotSingleLoop " + range_to_string(min, max) + char.to_string()
+    ClassLoop(~neg, ~chars, ~min, ~max) =>
+      "ClassLoop " + if neg { "Neg " } else { "" } + range_to_string(min, max) +
+      chars.to_string()
+    SingleLoopNG(~char, ~min, ~max) =>
+      "SingleLoopNG " + range_to_string(min, max) + char.to_string()
+    NotSingleLoopNG(~char, ~min, ~max) =>
+      "NotSingleLoopNG " + range_to_string(min, max) + char.to_string()
+    ClassLoopNG(~neg, ~chars, ~min, ~max) =>
+      "ClassLoopNG " + if neg { "Neg " } else { "" } + range_to_string(min, max) +
+      chars.to_string()
+    BeginOfLine => "BeginOfLine"
+    EndOfLine => "EndOfLine"
+    Alternate => "Alternate"
+    Concatenate => "Concatenate"
+    Loop(~min, ~max) => "Loop " + range_to_string(min, max)
+    LoopNG(~min, ~max) => "LoopNG " + range_to_string(min, max)
+    Capture(~index) => "Capture \(index)"
+    Group => "Group"
   }
 }
 
-pub fn is_literal(self : AstNode) -> Bool {
-  match self {
-    Char(..) => true
-    _ => false
-  }
+struct AstNode {
+  internal : AstNodeInternal
+  mut parent : Option[AstNode]
+  children : Array[AstNode]
 }
 
-pub struct Ast {
+fn AstNode::make(
+  internal : AstNodeInternal,
+  ~parent : Option[AstNode] = None,
+  ~children : Array[AstNode] = []
+) -> AstNode {
+  { internal, parent, children }
+}
+
+fn add_child(self : AstNode, child : AstNode) -> Unit {
+  child.parent = Some(self)
+  self.children.push(child)
+}
+
+fn get_child(self : AstNode, idx : Int) -> AstNode {
+  self.children[idx]
+}
+
+fn child_num(self : AstNode) -> Int {
+  self.children.length()
+}
+
+fn to_string(self : AstNode) -> String {
+  let buf = Buffer::make(0)
+  let mut cur_node = self
+  let mut cur_child = 0
+  let stack = []
+  buf.write_string(cur_node.internal.to_string())
+  buf.write_char('\n')
+  for ; ; {
+    if cur_child < cur_node.child_num() {
+      stack.push(cur_child + 1)
+      cur_node = cur_node.get_child(cur_child)
+      cur_child = 0
+      for i = 0; i < stack.length(); i = i + 1 {
+        buf.write_string("  ")
+      }
+      buf.write_string(cur_node.internal.to_string())
+      buf.write_char('\n')
+    } else {
+      if stack.is_empty() {
+        break
+      }
+      cur_child = stack.pop_exn()
+      cur_node = match cur_node.parent {
+        Some(node) => node
+        None => break
+      }
+    }
+  }
+  buf.to_string()
+}
+
+struct Ast {
   root : AstNode
   capture_num : Int
-  capture_name_map: @map.Map[String, Int]
-} derive(Show)
+  capture_name_mapping : @map.Map[String, Int]
+}
 
-fn debug_write(self: Ast, buf: Buffer) -> Unit {
-  self.root.debug_write(buf)
+fn to_string(self : Ast) -> String {
+  let buf = Buffer::make(0)
   buf.write_char('\n')
-  buf.write_string("capture_num: " + self.capture_num.to_string())
+  buf.write_string("Number of captures: " + self.capture_num.to_string())
   buf.write_char('\n')
-  buf.write_string("capture_name_map: ")
-  self.capture_name_map.debug_write(buf)
+  buf.write_string("Capture name mapping: ")
+  self.capture_name_mapping.debug_write(buf)
+  buf.write_char('\n')
+  buf.write_string("Ast:\n")
+  buf.write_string(self.root.to_string())
+  buf.to_string()
 }
