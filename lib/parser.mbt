@@ -253,11 +253,11 @@ fn parse_loop(self : Parser, target : AstNode) -> Result[AstNode, String] {
       } else {
         AstNode::make(NotSingleLoopNG(~char, ~min, ~max))
       }
-    Class(~neg, ~chars) =>
+    Class(~class) =>
       if greedy {
-        AstNode::make(ClassLoop(~neg, ~chars, ~min, ~max))
+        AstNode::make(ClassLoop(~class, ~min, ~max))
       } else {
-        AstNode::make(ClassLoopNG(~neg, ~chars, ~min, ~max))
+        AstNode::make(ClassLoopNG(~class, ~min, ~max))
       }
     _ => {
       let node = if greedy {
@@ -372,18 +372,18 @@ fn parse_class(self : Parser) -> Result[AstNode, String] {
   } else {
     false
   }
-  let chars : Array[Int] = []
+  let ranges : Array[Int] = []
   let mut first = true
   // Allow ']' and '-' as first char in class
   while self.more() && (self.peek_is(']').not() || first) {
     if self.peek_is(']') && first {
-      chars.push(']'.to_int())
-      chars.push(']'.to_int())
+      ranges.push(']'.to_int())
+      ranges.push(']'.to_int())
       self.advance(1) // ']'
     }
     if self.peek_is('-') && first {
-      chars.push('-'.to_int())
-      chars.push('-'.to_int())
+      ranges.push('-'.to_int())
+      ranges.push('-'.to_int())
       self.advance(1) // '-'
     }
     first = false
@@ -398,14 +398,14 @@ fn parse_class(self : Parser) -> Result[AstNode, String] {
         high = self.parse_char_class_char()?
       }
     }
-    chars.push(low.to_int())
-    chars.push(high.to_int())
+    ranges.push(low.to_int())
+    ranges.push(high.to_int())
   }
   if self.more().not() || self.peek_is(']').not() {
     return Err(class_missing_bracket)
   } else {
     self.advance(1) // ']'
-    Ok(AstNode::make(Class(~neg, ~chars)))
+    Ok(AstNode::make(Class(class=CharClass::new(ranges, neg))))
   }
 }
 

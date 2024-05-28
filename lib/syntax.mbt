@@ -4,14 +4,14 @@ enum AstNodeInternal {
   //Nothing
   Single(~char : Char)
   NotSingle(~char : Char)
-  Class(~neg : Bool, ~chars : Array[Int])
+  Class(~class : CharClass)
   //Multi(~str : String)
   SingleLoop(~char : Char, ~min : Int, ~max : Option[Int])
   NotSingleLoop(~char : Char, ~min : Int, ~max : Option[Int])
-  ClassLoop(~neg : Bool, ~chars : Array[Int], ~min : Int, ~max : Option[Int])
+  ClassLoop(~class : CharClass, ~min : Int, ~max : Option[Int])
   SingleLoopNG(~char : Char, ~min : Int, ~max : Option[Int])
   NotSingleLoopNG(~char : Char, ~min : Int, ~max : Option[Int])
-  ClassLoopNG(~neg : Bool, ~chars : Array[Int], ~min : Int, ~max : Option[Int])
+  ClassLoopNG(~class : CharClass, ~min : Int, ~max : Option[Int])
   //Backreference(~index : Int)
   BeginOfLine
   EndOfLine
@@ -36,22 +36,19 @@ fn to_string(self : AstNodeInternal) -> String {
     Empty => "Empty"
     Single(~char) => "Single " + char.to_string()
     NotSingle(~char) => "NotSingle " + char.to_string()
-    Class(~neg, ~chars) =>
-      "Class " + if neg { "Neg " } else { "" } + chars.to_string()
+    Class(~class) => "Class " + class.to_string()
     SingleLoop(~char, ~min, ~max) =>
       "SingleLoop " + range_to_string(min, max) + char.to_string()
     NotSingleLoop(~char, ~min, ~max) =>
       "NotSingleLoop " + range_to_string(min, max) + char.to_string()
-    ClassLoop(~neg, ~chars, ~min, ~max) =>
-      "ClassLoop " + if neg { "Neg " } else { "" } + range_to_string(min, max) +
-      chars.to_string()
+    ClassLoop(~class, ~min, ~max) =>
+      "ClassLoop " + range_to_string(min, max) + class.to_string()
     SingleLoopNG(~char, ~min, ~max) =>
       "SingleLoopNG " + range_to_string(min, max) + char.to_string()
     NotSingleLoopNG(~char, ~min, ~max) =>
       "NotSingleLoopNG " + range_to_string(min, max) + char.to_string()
-    ClassLoopNG(~neg, ~chars, ~min, ~max) =>
-      "ClassLoopNG " + if neg { "Neg " } else { "" } + range_to_string(min, max) +
-      chars.to_string()
+    ClassLoopNG(~class, ~min, ~max) =>
+      "ClassLoopNG " + range_to_string(min, max) + class.to_string()
     BeginOfLine => "BeginOfLine"
     EndOfLine => "EndOfLine"
     Alternate => "Alternate"

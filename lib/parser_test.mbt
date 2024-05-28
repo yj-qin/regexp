@@ -174,7 +174,7 @@ test "should parse class" {
       #|Number of captures: 0
       #|Capture name mapping: Map::[]
       #|Ast:
-      #|Class [97, 97, 98, 98, 99, 99]
+      #|Class [abc]
       #|)
     ,
   )?
@@ -188,7 +188,7 @@ test "should parse range class" {
       #|Number of captures: 0
       #|Capture name mapping: Map::[]
       #|Ast:
-      #|Class [97, 122]
+      #|Class [a-z]
       #|)
     ,
   )?
@@ -199,7 +199,7 @@ test "should parse range class" {
       #|Number of captures: 0
       #|Capture name mapping: Map::[]
       #|Ast:
-      #|Class [97, 122, 65, 90]
+      #|Class [a-zA-Z]
       #|)
     ,
   )?
@@ -210,7 +210,7 @@ test "should parse range class" {
       #|Number of captures: 0
       #|Capture name mapping: Map::[]
       #|Ast:
-      #|Class [48, 57]
+      #|Class [0-9]
       #|)
     ,
   )?
@@ -224,7 +224,7 @@ test "should parse negated class" {
       #|Number of captures: 0
       #|Capture name mapping: Map::[]
       #|Ast:
-      #|Class Neg [97, 97, 98, 98, 99, 99]
+      #|Class [^abc]
       #|)
     ,
   )?
