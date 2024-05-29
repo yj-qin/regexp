@@ -1,14 +1,13 @@
 struct CharClass {
   neg : Bool
   ranges : Array[Int]
-} derive(Eq)
+} derive(Show, Eq)
 
 fn CharClass::new(ranges : Array[Int], neg : Bool) -> CharClass {
   { neg, ranges }
 }
 
-fn to_string(self : CharClass) -> String {
-  let buf = Buffer::make(0)
+fn debug_write(self : CharClass, buf: Buffer) -> Unit {
   buf.write_char('[')
   if self.neg {
     buf.write_char('^')
@@ -25,5 +24,4 @@ fn to_string(self : CharClass) -> String {
     }
   }
   buf.write_char(']')
-  buf.to_string()
 }

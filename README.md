@@ -14,8 +14,7 @@
 - [x] End of input
 - [ ] Word boundary
 - [ ] Non-word boundary
-- [ ] Lookahead
-- [ ] Lookbehind
+- [ ] Lookaround
 
 ### Groups
 
@@ -34,3 +33,8 @@
 - [x] Zero or one (?)
 - [x] One or more (+)
 - [x] Range ({n}, {n,}, {n, m})
+- [x] Non-greedy
+
+### Encodings
+
+- [ ] Unicode

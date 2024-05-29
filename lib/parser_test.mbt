@@ -63,7 +63,7 @@ test "should parse star" {
     #|Number of captures: 0
     #|Capture name mapping: Map::[]
     #|Ast:
-    #|SingleLoop {0,} a
+    #|SingleLoop Greedy {0,} a
     #|)
   )?
 }
@@ -74,7 +74,7 @@ test "should parse plus" {
     #|Number of captures: 0
     #|Capture name mapping: Map::[]
     #|Ast:
-    #|SingleLoop {1,} a
+    #|SingleLoop Greedy {1,} a
     #|)
   )?
 }
@@ -85,7 +85,7 @@ test "should parse quest" {
     #|Number of captures: 0
     #|Capture name mapping: Map::[]
     #|Ast:
-    #|SingleLoop {0,1} a
+    #|SingleLoop Greedy {0,1} a
     #|)
   )?
 }
@@ -96,7 +96,7 @@ test "should parse exact loop" {
     #|Number of captures: 0
     #|Capture name mapping: Map::[]
     #|Ast:
-    #|SingleLoop {2} a
+    #|SingleLoop Greedy {2} a
     #|)
   )?
 }
@@ -107,7 +107,7 @@ test "should parse loop [min, max]" {
     #|Number of captures: 0
     #|Capture name mapping: Map::[]
     #|Ast:
-    #|SingleLoop {1,2} a
+    #|SingleLoop Greedy {1,2} a
     #|)
   )?
 }
@@ -118,7 +118,7 @@ test "should parse loop [min, infinity]" {
     #|Number of captures: 0
     #|Capture name mapping: Map::[]
     #|Ast:
-    #|SingleLoop {0,} a
+    #|SingleLoop Greedy {0,} a
     #|)
   )?
 }
@@ -129,7 +129,7 @@ test "should parse non-greedy" {
     #|Number of captures: 0
     #|Capture name mapping: Map::[]
     #|Ast:
-    #|SingleLoopNG {0,} a
+    #|SingleLoop NonGreedy {0,} a
     #|)
   )?
   inspect(test_parse("a+?"), content=
@@ -137,7 +137,7 @@ test "should parse non-greedy" {
     #|Number of captures: 0
     #|Capture name mapping: Map::[]
     #|Ast:
-    #|SingleLoopNG {1,} a
+    #|SingleLoop NonGreedy {1,} a
     #|)
   )?
   inspect(test_parse("a??"), content=
@@ -145,7 +145,7 @@ test "should parse non-greedy" {
     #|Number of captures: 0
     #|Capture name mapping: Map::[]
     #|Ast:
-    #|SingleLoopNG {0,1} a
+    #|SingleLoop NonGreedy {0,1} a
     #|)
   )?
   inspect(test_parse("a{0,2}?"), content=
@@ -153,7 +153,7 @@ test "should parse non-greedy" {
     #|Number of captures: 0
     #|Capture name mapping: Map::[]
     #|Ast:
-    #|SingleLoopNG {0,2} a
+    #|SingleLoop NonGreedy {0,2} a
     #|)
   )?
 }
@@ -436,13 +436,13 @@ test "should parse common regexp" {
     #|Concatenate
     #|  BeginOfLine
     #|  Capture 0
-    #|    ClassLoop {1,} [97, 122, 65, 90, 48, 57, 46, 46, 95, 95, 37, 37, 43, 43, 45, 45]
+    #|    ClassLoop Greedy {1,} [a-zA-Z0-9._%+-]
     #|  Single @
     #|  Capture 1
     #|    Concatenate
-    #|      ClassLoop {1,} [97, 122, 65, 90, 48, 57, 46, 46, 45, 45]
+    #|      ClassLoop Greedy {1,} [a-zA-Z0-9.-]
     #|      Single .
-    #|      ClassLoop {2,} [97, 122, 65, 90]
+    #|      ClassLoop Greedy {2,} [a-zA-Z]
     #|  EndOfLine
     #|)
   )?

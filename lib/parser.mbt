@@ -135,7 +135,7 @@ fn parse_expr(self : Parser, in_group : Bool) -> Result[AstNode, String] {
   if self.more().not() || in_group && self.peek_is(')') {
     return Ok(node)
   } else if self.peek_is('|') {
-    let alt_node = AstNode::make(Alternate)
+    let alt_node = AstNode::new(Alternate)
     alt_node.add_child(node)
     while self.peek_is('|') {
       self.advance(1) // |
@@ -156,7 +156,7 @@ fn parse_concat(self : Parser, in_group : Bool) -> Result[AstNode, String] {
   if self.more().not() || self.peek_is('|') || in_group && self.peek_is(')') {
     Ok(node)
   } else {
-    let concat_node = AstNode::make(Concatenate)
+    let concat_node = AstNode::new(Concatenate)
     concat_node.add_child(node)
     while self.more() && self.peek_is('|').not() && (in_group && self.peek_is(
             ')',
@@ -169,24 +169,24 @@ fn parse_concat(self : Parser, in_group : Bool) -> Result[AstNode, String] {
 
 fn parse_node(self : Parser, in_group : Bool) -> Result[AstNode, String] {
   if self.more().not() || in_group && self.peek_is(')') {
-    return Ok(AstNode::make(Empty))
+    return Ok(AstNode::new(Empty))
   }
   let node = match self.peek() {
     '|' => {
       self.advance(1)
-      AstNode::make(Empty)
+      AstNode::new(Empty)
     }
     '.' => {
       self.advance(1)
-      AstNode::make(NotSingle(char='\n'))
+      AstNode::new(NotSingle(char='\n'))
     }
     '^' => {
       self.advance(1)
-      AstNode::make(BeginOfLine)
+      AstNode::new(BeginOfLine)
     }
     '$' => {
       self.advance(1)
-      AstNode::make(EndOfLine)
+      AstNode::new(EndOfLine)
     }
     '(' => {
       self.advance(1)
@@ -205,7 +205,7 @@ fn parse_node(self : Parser, in_group : Bool) -> Result[AstNode, String] {
     }
     _ as char => {
       self.advance(1)
-      AstNode::make(Single(~char))
+      AstNode::new(Single(~char))
     }
   }
   self.parse_loop(node)
@@ -241,30 +241,11 @@ fn parse_loop(self : Parser, target : AstNode) -> Result[AstNode, String] {
     greedy = false
   }
   let node = match target.internal {
-    Single(~char) =>
-      if greedy {
-        AstNode::make(SingleLoop(~char, ~min, ~max))
-      } else {
-        AstNode::make(SingleLoopNG(~char, ~min, ~max))
-      }
-    NotSingle(~char) =>
-      if greedy {
-        AstNode::make(NotSingleLoop(~char, ~min, ~max))
-      } else {
-        AstNode::make(NotSingleLoopNG(~char, ~min, ~max))
-      }
-    Class(~class) =>
-      if greedy {
-        AstNode::make(ClassLoop(~class, ~min, ~max))
-      } else {
-        AstNode::make(ClassLoopNG(~class, ~min, ~max))
-      }
+    Single(~char) => AstNode::new(SingleLoop(~char, ~min, ~max, ~greedy))
+    NotSingle(~char) => AstNode::new(NotSingleLoop(~char, ~min, ~max, ~greedy))
+    Class(~class) => AstNode::new(ClassLoop(~class, ~min, ~max, ~greedy))
     _ => {
-      let node = if greedy {
-        AstNode::make(Loop(~min, ~max))
-      } else {
-        AstNode::make(LoopNG(~min, ~max))
-      }
+      let node = AstNode::new(Loop(~min, ~max, ~greedy))
       node.add_child(target)
       node
     }
@@ -337,11 +318,7 @@ fn parse_group(self : Parser) -> Result[AstNode, String] {
   if self.more().not() || self.peek_is(')') {
     return Err(empty_group)
   }
-  let node = if capture {
-    AstNode::make(Capture(~index))
-  } else {
-    AstNode::make(Group)
-  }
+  let node = if capture { AstNode::new(Capture(~index)) } else { AstNode::new(Group) }
   node.add_child(self.parse_expr(true)?)
   if self.more().not() || self.peek_is(')').not() {
     Err(group_missing_paren)
@@ -405,7 +382,7 @@ fn parse_class(self : Parser) -> Result[AstNode, String] {
     return Err(class_missing_bracket)
   } else {
     self.advance(1) // ']'
-    Ok(AstNode::make(Class(class=CharClass::new(ranges, neg))))
+    Ok(AstNode::new(Class(class=CharClass::new(ranges, neg))))
   }
 }
 
@@ -428,7 +405,7 @@ fn parse_escape(self : Parser) -> Result[AstNode, String] {
   let node : AstNode = match self.peek() {
     _ as char => {
       self.advance(1)
-      AstNode::make(Single(~char))
+      AstNode::new(Single(~char))
     }
   }
   Ok(node)

@@ -1,34 +1,37 @@
 enum AstNodeInternal {
   // Leave nodes of the AST.
   Empty
-  //Nothing
   Single(~char : Char)
   NotSingle(~char : Char)
   Class(~class : CharClass)
-  //Multi(~str : String)
-  SingleLoop(~char : Char, ~min : Int, ~max : Option[Int])
-  NotSingleLoop(~char : Char, ~min : Int, ~max : Option[Int])
-  ClassLoop(~class : CharClass, ~min : Int, ~max : Option[Int])
-  SingleLoopNG(~char : Char, ~min : Int, ~max : Option[Int])
-  NotSingleLoopNG(~char : Char, ~min : Int, ~max : Option[Int])
-  ClassLoopNG(~class : CharClass, ~min : Int, ~max : Option[Int])
-  //Backreference(~index : Int)
+  // Multi(~str : String)
+  SingleLoop(~char : Char, ~min : Int, ~max : Option[Int], ~greedy : Bool)
+  NotSingleLoop(~char : Char, ~min : Int, ~max : Option[Int], ~greedy : Bool)
+  ClassLoop(~class : CharClass, ~min : Int, ~max : Option[Int], ~greedy : Bool)
+  // Backreference(~index : Int)
   BeginOfLine
   EndOfLine
   // Branch nodes of the AST that have at least one child.
   Alternate
   Concatenate
-  Loop(~min : Int, ~max : Option[Int])
-  LoopNG(~min : Int, ~max : Option[Int])
+  Loop(~min : Int, ~max : Option[Int], ~greedy : Bool)
   Capture(~index : Int)
   Group
 } derive(Eq)
 
 fn to_string(self : AstNodeInternal) -> String {
-  fn range_to_string(min : Int, max : Option[Int]) {
+  fn range_str(min : Int, max : Option[Int]) {
     match max {
       Some(max) => if min == max { "{\(min)} " } else { "{\(min),\(max)} " }
       None => "{\(min),} "
+    }
+  }
+
+  fn greedy_str(g : Bool) -> String {
+    if g {
+      "Greedy "
+    } else {
+      "NonGreedy "
     }
   }
 
@@ -37,24 +40,18 @@ fn to_string(self : AstNodeInternal) -> String {
     Single(~char) => "Single " + char.to_string()
     NotSingle(~char) => "NotSingle " + char.to_string()
     Class(~class) => "Class " + class.to_string()
-    SingleLoop(~char, ~min, ~max) =>
-      "SingleLoop " + range_to_string(min, max) + char.to_string()
-    NotSingleLoop(~char, ~min, ~max) =>
-      "NotSingleLoop " + range_to_string(min, max) + char.to_string()
-    ClassLoop(~class, ~min, ~max) =>
-      "ClassLoop " + range_to_string(min, max) + class.to_string()
-    SingleLoopNG(~char, ~min, ~max) =>
-      "SingleLoopNG " + range_to_string(min, max) + char.to_string()
-    NotSingleLoopNG(~char, ~min, ~max) =>
-      "NotSingleLoopNG " + range_to_string(min, max) + char.to_string()
-    ClassLoopNG(~class, ~min, ~max) =>
-      "ClassLoopNG " + range_to_string(min, max) + class.to_string()
+    SingleLoop(~char, ~min, ~max, ~greedy) =>
+      "SingleLoop " + greedy_str(greedy) + range_str(min, max) + char.to_string()
+    NotSingleLoop(~char, ~min, ~max, ~greedy) =>
+      "NotSingleLoop " + greedy_str(greedy) + range_str(min, max) + char.to_string()
+    ClassLoop(~class, ~min, ~max, ~greedy) =>
+      "ClassLoop " + greedy_str(greedy) + range_str(min, max) + class.to_string()
     BeginOfLine => "BeginOfLine"
     EndOfLine => "EndOfLine"
     Alternate => "Alternate"
     Concatenate => "Concatenate"
-    Loop(~min, ~max) => "Loop " + range_to_string(min, max)
-    LoopNG(~min, ~max) => "LoopNG " + range_to_string(min, max)
+    Loop(~min, ~max, ~greedy) =>
+      "Loop " + greedy_str(greedy) + range_str(min, max)
     Capture(~index) => "Capture \(index)"
     Group => "Group"
   }
@@ -66,7 +63,7 @@ struct AstNode {
   children : Array[AstNode]
 }
 
-fn AstNode::make(
+fn AstNode::new(
   internal : AstNodeInternal,
   ~parent : Option[AstNode] = None,
   ~children : Array[AstNode] = []
