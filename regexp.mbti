@@ -1,0 +1,25 @@
+package yj-qin/regexp
+
+// Values
+fn compile(String) -> Result[RegExp, String]
+
+// Types and methods
+type Match
+impl Match {
+  capture(Self, Int) -> Option[String]
+  debug_write(Self, Buffer) -> Unit
+  named(Self, String) -> Option[String]
+  success(Self) -> Bool
+  to_string(Self) -> String
+}
+
+type RegExp
+impl RegExp {
+  matches(Self, String, ~start : Int = .., ~end : Int = ..) -> Match
+  pattern(Self) -> String
+}
+
+// Traits
+
+// Extension Methods
+

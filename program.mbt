@@ -1,7 +1,17 @@
-struct Program {
+priv struct Program {
   bytecodes : Array[Int]
   classes : Array[CharClass]
+  capture_num : Int
+  capture_name_mapping : @map.Map[String, Int]
 } derive(Show)
+
+fn op_code(self : Program, pos : Int) -> OpCode {
+  OpCode::from_bytecode(self.bytecodes[pos])
+}
+
+fn operand(self : Program, pos : Int) -> Int {
+  self.bytecodes[pos]
+}
 
 fn debug_write(self : Program, buf : Buffer) -> Unit {
   let mut pos = 0
@@ -9,7 +19,7 @@ fn debug_write(self : Program, buf : Buffer) -> Unit {
     buf.write_string("\(pos) ")
     let opcode = OpCode::from_bytecode(self.bytecodes[pos])
     match opcode {
-      Stop | BeginOfInput | EndOfInput | NullMark | SetMark => {
+      Nop | Stop | BeginOfInput | EndOfInput | NullMark | SetMark | GetMark => {
         buf.write_string("\(opcode)\n")
         pos += 1
       }

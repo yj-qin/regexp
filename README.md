@@ -1,6 +1,19 @@
 # RegExp
 
-## Extended Features
+## Usage
+
+```
+let regexp = @regexp.compile("^(?<addr>[a-zA-Z0-9._%+-]+)@(?<host>[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$")?
+let match_result = regexp.matches("12345@test.com")
+println(match_result.success()) // true
+println(match_result.capture(0)) // 12345@test.com
+println(match_result.capture(1)) // 12345
+println(match_result.capture(2)) // test.com
+println(match_result.named("addr")) // 12345
+println(match_result.named("host")) // test.com
+```
+
+## Features
 
 ### Character classes
 
@@ -13,7 +26,6 @@
 - [x] Begin of input
 - [x] End of input
 - [ ] Word boundary
-- [ ] Non-word boundary
 - [ ] Lookaround
 
 ### Groups

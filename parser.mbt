@@ -28,7 +28,7 @@ let group_missing_paren = "group missing end paren"
 
 let max_loop_count = 100_000
 
-struct Parser {
+priv struct Parser {
   pattern : String
   mut pos : Int
   mut pos_mark : Int
@@ -120,7 +120,10 @@ fn fetch_unsigned_num(self : Parser) -> Option[Int] {
 }
 
 fn parse(self : Parser) -> Result[Ast, String] {
-  let root = self.parse_expr(false)?
+  let root = AstNode::new(Capture(index=self.group_index))
+  self.group_index += 1
+  self.capture_num += 1
+  root.add_child(self.parse_expr(false)?)
   Ok(
     {
       root,
@@ -182,11 +185,11 @@ fn parse_node(self : Parser, in_group : Bool) -> Result[AstNode, String] {
     }
     '^' => {
       self.advance(1)
-      AstNode::new(BeginOfLine)
+      AstNode::new(BeginOfInput)
     }
     '$' => {
       self.advance(1)
-      AstNode::new(EndOfLine)
+      AstNode::new(EndOfInput)
     }
     '(' => {
       self.advance(1)
@@ -318,7 +321,11 @@ fn parse_group(self : Parser) -> Result[AstNode, String] {
   if self.more().not() || self.peek_is(')') {
     return Err(empty_group)
   }
-  let node = if capture { AstNode::new(Capture(~index)) } else { AstNode::new(Group) }
+  let node = if capture {
+    AstNode::new(Capture(~index))
+  } else {
+    AstNode::new(Group)
+  }
   node.add_child(self.parse_expr(true)?)
   if self.more().not() || self.peek_is(')').not() {
     Err(group_missing_paren)

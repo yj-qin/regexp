@@ -1,4 +1,5 @@
-enum OpCode {
+priv enum OpCode {
+  Nop
   Stop
   // Match operations.
   Single // char
@@ -22,15 +23,17 @@ enum OpCode {
   BranchMarkLazy // addr
   NullCount // count
   SetCount // count
-  BranchCount // addr, limit
-  BranchCountLazy // addr, limit
+  BranchCount // addr, max_count
+  BranchCountLazy // addr, max_count
   NullMark
   SetMark
   CaptureMark // capture_index
+  GetMark
 } derive(Debug, Show)
 
 fn to_bytecode(self : OpCode) -> Int {
   match self {
+    Nop => -1
     Stop => 0
     Single => 1
     NotSingle => 2
@@ -57,6 +60,7 @@ fn to_bytecode(self : OpCode) -> Int {
     NullMark => 23
     SetMark => 24
     CaptureMark => 25
+    GetMark => 26
   }
 }
 
@@ -88,6 +92,7 @@ fn OpCode::from_bytecode(bytecode : Int) -> OpCode {
     23 => NullMark
     24 => SetMark
     25 => CaptureMark
+    26 => GetMark
     _ => panic()
   }
 }

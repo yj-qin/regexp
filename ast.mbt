@@ -1,4 +1,4 @@
-enum AstNodeInternal {
+priv enum AstNodeInternal {
   // Leave nodes of the AST.
   Empty
   Single(~char : Char)
@@ -9,8 +9,8 @@ enum AstNodeInternal {
   NotSingleLoop(~char : Char, ~min : Int, ~max : Option[Int], ~greedy : Bool)
   ClassLoop(~class : CharClass, ~min : Int, ~max : Option[Int], ~greedy : Bool)
   // Backreference(~index : Int)
-  BeginOfLine
-  EndOfLine
+  BeginOfInput
+  EndOfInput
   // Branch nodes of the AST that have at least one child.
   Alternate
   Concatenate
@@ -46,8 +46,8 @@ fn to_string(self : AstNodeInternal) -> String {
       "NotSingleLoop " + greedy_str(greedy) + range_str(min, max) + char.to_string()
     ClassLoop(~class, ~min, ~max, ~greedy) =>
       "ClassLoop " + greedy_str(greedy) + range_str(min, max) + class.to_string()
-    BeginOfLine => "BeginOfLine"
-    EndOfLine => "EndOfLine"
+    BeginOfInput => "BeginOfLine"
+    EndOfInput => "EndOfLine"
     Alternate => "Alternate"
     Concatenate => "Concatenate"
     Loop(~min, ~max, ~greedy) =>
@@ -57,7 +57,7 @@ fn to_string(self : AstNodeInternal) -> String {
   }
 }
 
-struct AstNode {
+priv struct AstNode {
   internal : AstNodeInternal
   mut parent : Option[AstNode]
   children : Array[AstNode]
@@ -115,7 +115,7 @@ fn to_string(self : AstNode) -> String {
   buf.to_string()
 }
 
-struct Ast {
+priv struct Ast {
   root : AstNode
   capture_num : Int
   capture_name_mapping : @map.Map[String, Int]

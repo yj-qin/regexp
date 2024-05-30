@@ -1,9 +1,9 @@
-enum TraverseStatus {
+priv enum TraverseStatus {
   BeforeChild
   AfterChild
 }
 
-struct Emitter {
+priv struct Emitter {
   ast : Ast
   bytecodes : Array[Int]
   classes : Array[CharClass]
@@ -70,7 +70,12 @@ fn emit(self : Emitter) -> Program {
   }
   self.patch_jump(0, self.cur_pos())
   self.emit_0(Stop)
-  { bytecodes: self.bytecodes, classes: self.classes }
+  {
+    bytecodes: self.bytecodes,
+    classes: self.classes,
+    capture_num: self.ast.capture_num,
+    capture_name_mapping: self.ast.capture_name_mapping,
+  }
 }
 
 fn emit_fragment(
@@ -118,7 +123,11 @@ fn emit_fragment(
       let jump_dest = self.cur_pos()
       if min > 1 || max.is_empty().not() {
         let opcode : OpCode = if greedy { BranchCount } else { BranchCountLazy }
-        let count = if max.is_empty() { -1 } else { max.unwrap() - min }
+        let count = if max.is_empty() {
+          Int::max_value()
+        } else {
+          max.unwrap() - min
+        }
         self.emit_2(opcode, self.pop_stack(), count)
       } else {
         let opcode : OpCode = if greedy { BranchMark } else { BranchMarkLazy }
@@ -146,7 +155,7 @@ fn emit_fragment(
       let opcode : OpCode = if greedy { SingleLoop } else { SingleLazy }
       match max {
         Some(max) => if max != min { self.emit_2(opcode, opd, max - min) }
-        None => self.emit_2(opcode, opd, -1)
+        None => self.emit_2(opcode, opd, Int::max_value())
       }
     }
     (NotSingleLoop(~char, ~min, ~max, ~greedy), _) => {
@@ -157,7 +166,7 @@ fn emit_fragment(
       let opcode : OpCode = if greedy { NotSingleLoop } else { NotSingleLazy }
       match max {
         Some(max) => if max != min { self.emit_2(opcode, opd, max - min) }
-        None => self.emit_2(opcode, opd, -1)
+        None => self.emit_2(opcode, opd, Int::max_value())
       }
     }
     (ClassLoop(~class, ~min, ~max, ~greedy), _) => {
@@ -169,10 +178,10 @@ fn emit_fragment(
       let opcode : OpCode = if greedy { ClassLoop } else { ClassLazy }
       match max {
         Some(max) => if max != min { self.emit_2(opcode, idx, max - min) }
-        None => self.emit_2(opcode, idx, -1)
+        None => self.emit_2(opcode, idx, Int::max_value())
       }
     }
-    (BeginOfLine, _) => self.emit_0(BeginOfInput)
-    (EndOfLine, _) => self.emit_0(EndOfInput)
+    (BeginOfInput, _) => self.emit_0(BeginOfInput)
+    (EndOfInput, _) => self.emit_0(EndOfInput)
   }
 }
