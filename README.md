@@ -1,6 +1,8 @@
 # RegExp
 [![check](https://github.com/yj-qin/regexp/actions/workflows/check.yml/badge.svg)](https://github.com/yj-qin/regexp/actions/workflows/check.yml)
 
+A regular expression module based on a backtracking engine.
+
 ## Usage
 
 ```
