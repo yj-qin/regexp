@@ -1,7 +1,8 @@
 # RegExp
 [![check](https://github.com/yj-qin/regexp/actions/workflows/check.yml/badge.svg)](https://github.com/yj-qin/regexp/actions/workflows/check.yml)
 
-A regular expression module based on a backtracking engine.
+A regular expression module based on a backtracking engine. Due to backtracking during matching, some regular expressions will run for a long time under specific inputs, also known as catastrophic backtracking.
+The design of the bytecode and interpreter was heavily inspired by the .NET regular expression library.
 
 ## Usage
 
