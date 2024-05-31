@@ -200,7 +200,7 @@ test "should match quantifier" {
   inspect(
     compile("a{2,}")?.matches("a"),
     content=
-      #|{success: true, captures: ["aa"], capture_name_mapping: Map::[]}
+      #|{success: false, captures: [""], capture_name_mapping: Map::[]}
     ,
   )?
   inspect(
@@ -212,7 +212,7 @@ test "should match quantifier" {
   inspect(
     compile("a{2,}")?.matches("aaaaaaaaaaaaa"),
     content=
-      #|{success: true, captures: ["aa"], capture_name_mapping: Map::[]}
+      #|{success: true, captures: ["aaaaaaaaaaaaa"], capture_name_mapping: Map::[]}
     ,
   )?
 }
