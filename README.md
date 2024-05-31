@@ -18,7 +18,6 @@ println(match_result.named("host")) // test.com
 ### Character classes
 
 - [x] Character range
-- [ ] POSIX character classes
 - [ ] Perl's Backslash sequences
 
 ### Assertions
