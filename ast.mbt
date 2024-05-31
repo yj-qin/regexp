@@ -37,13 +37,13 @@ fn to_string(self : AstNodeInternal) -> String {
 
   match self {
     Empty => "Empty"
-    Single(~char) => "Single " + char.to_string()
-    NotSingle(~char) => "NotSingle " + char.to_string()
+    Single(~char) => "Single " + char.to_int().to_string()
+    NotSingle(~char) => "NotSingle " + char.to_int().to_string()
     Class(~class) => "Class " + class.to_string()
     SingleLoop(~char, ~min, ~max, ~greedy) =>
-      "SingleLoop " + greedy_str(greedy) + range_str(min, max) + char.to_string()
+      "SingleLoop " + greedy_str(greedy) + range_str(min, max) + char.to_int().to_string()
     NotSingleLoop(~char, ~min, ~max, ~greedy) =>
-      "NotSingleLoop " + greedy_str(greedy) + range_str(min, max) + char.to_string()
+      "NotSingleLoop " + greedy_str(greedy) + range_str(min, max) + char.to_int().to_string()
     ClassLoop(~class, ~min, ~max, ~greedy) =>
       "ClassLoop " + greedy_str(greedy) + range_str(min, max) + class.to_string()
     BeginOfInput => "BeginOfLine"

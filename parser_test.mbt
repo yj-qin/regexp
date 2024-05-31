@@ -12,7 +12,22 @@ test "should parse single char" {
       #|Capture name mapping: Map::[]
       #|Ast:
       #|Capture 0
-      #|  Single a
+      #|  Single 97
+      #|)
+    ,
+  )?
+}
+
+test "should parse any char" {
+  inspect(
+    test_parse("."),
+    content=
+      #|Ok(
+      #|Number of captures: 1
+      #|Capture name mapping: Map::[]
+      #|Ast:
+      #|Capture 0
+      #|  NotSingle 10
       #|)
     ,
   )?
@@ -30,9 +45,9 @@ test "should parse concat" {
       #|Ast:
       #|Capture 0
       #|  Concatenate
-      #|    Single a
-      #|    Single b
-      #|    Single c
+      #|    Single 97
+      #|    Single 98
+      #|    Single 99
       #|)
     ,
   )?
@@ -50,9 +65,9 @@ test "should parse alt" {
       #|Ast:
       #|Capture 0
       #|  Alternate
-      #|    Single a
-      #|    Single b
-      #|    Single c
+      #|    Single 97
+      #|    Single 98
+      #|    Single 99
       #|)
     ,
   )?
@@ -69,7 +84,7 @@ test "should parse star" {
       #|Capture name mapping: Map::[]
       #|Ast:
       #|Capture 0
-      #|  SingleLoop Greedy {0,} a
+      #|  SingleLoop Greedy {0,} 97
       #|)
     ,
   )?
@@ -84,7 +99,7 @@ test "should parse plus" {
       #|Capture name mapping: Map::[]
       #|Ast:
       #|Capture 0
-      #|  SingleLoop Greedy {1,} a
+      #|  SingleLoop Greedy {1,} 97
       #|)
     ,
   )?
@@ -99,7 +114,7 @@ test "should parse quest" {
       #|Capture name mapping: Map::[]
       #|Ast:
       #|Capture 0
-      #|  SingleLoop Greedy {0,1} a
+      #|  SingleLoop Greedy {0,1} 97
       #|)
     ,
   )?
@@ -114,7 +129,7 @@ test "should parse exact loop" {
       #|Capture name mapping: Map::[]
       #|Ast:
       #|Capture 0
-      #|  SingleLoop Greedy {2} a
+      #|  SingleLoop Greedy {2} 97
       #|)
     ,
   )?
@@ -129,7 +144,7 @@ test "should parse loop [min, max]" {
       #|Capture name mapping: Map::[]
       #|Ast:
       #|Capture 0
-      #|  SingleLoop Greedy {1,2} a
+      #|  SingleLoop Greedy {1,2} 97
       #|)
     ,
   )?
@@ -144,7 +159,7 @@ test "should parse loop [min, infinity]" {
       #|Capture name mapping: Map::[]
       #|Ast:
       #|Capture 0
-      #|  SingleLoop Greedy {0,} a
+      #|  SingleLoop Greedy {0,} 97
       #|)
     ,
   )?
@@ -159,7 +174,7 @@ test "should parse non-greedy" {
       #|Capture name mapping: Map::[]
       #|Ast:
       #|Capture 0
-      #|  SingleLoop NonGreedy {0,} a
+      #|  SingleLoop NonGreedy {0,} 97
       #|)
     ,
   )?
@@ -171,7 +186,7 @@ test "should parse non-greedy" {
       #|Capture name mapping: Map::[]
       #|Ast:
       #|Capture 0
-      #|  SingleLoop NonGreedy {1,} a
+      #|  SingleLoop NonGreedy {1,} 97
       #|)
     ,
   )?
@@ -183,7 +198,7 @@ test "should parse non-greedy" {
       #|Capture name mapping: Map::[]
       #|Ast:
       #|Capture 0
-      #|  SingleLoop NonGreedy {0,1} a
+      #|  SingleLoop NonGreedy {0,1} 97
       #|)
     ,
   )?
@@ -195,7 +210,7 @@ test "should parse non-greedy" {
       #|Capture name mapping: Map::[]
       #|Ast:
       #|Capture 0
-      #|  SingleLoop NonGreedy {0,2} a
+      #|  SingleLoop NonGreedy {0,2} 97
       #|)
     ,
   )?
@@ -294,7 +309,7 @@ test "should parse group" {
       #|Ast:
       #|Capture 0
       #|  Capture 1
-      #|    Single a
+      #|    Single 97
       #|)
     ,
   )?
@@ -308,9 +323,9 @@ test "should parse group" {
       #|Capture 0
       #|  Concatenate
       #|    Capture 1
-      #|      Single a
+      #|      Single 97
       #|    Capture 2
-      #|      Single b
+      #|      Single 98
       #|)
     ,
   )?
@@ -328,9 +343,9 @@ test "should parse nested group" {
       #|  Capture 1
       #|    Concatenate
       #|      Capture 2
-      #|        Single a
-      #|      Single b
-      #|      Single c
+      #|        Single 97
+      #|      Single 98
+      #|      Single 99
       #|)
     ,
   )?
@@ -348,9 +363,9 @@ test "should parse nested group concat" {
       #|  Capture 1
       #|    Concatenate
       #|      Capture 2
-      #|        Single a
+      #|        Single 97
       #|      Capture 3
-      #|        Single b
+      #|        Single 98
       #|)
     ,
   )?
@@ -368,10 +383,10 @@ test "should parse nested group alt" {
       #|  Capture 1
       #|    Alternate
       #|      Capture 2
-      #|        Single a
+      #|        Single 97
       #|      Concatenate
-      #|        Single b
-      #|        Single c
+      #|        Single 98
+      #|        Single 99
       #|)
     ,
   )?
@@ -386,9 +401,9 @@ test "should parse nested group alt" {
       #|  Capture 1
       #|    Alternate
       #|      Capture 2
-      #|        Single a
+      #|        Single 97
       #|      Capture 3
-      #|        Single b
+      #|        Single 98
       #|)
     ,
   )?
@@ -404,7 +419,7 @@ test "should parse non-capturing group" {
       #|Ast:
       #|Capture 0
       #|  Group
-      #|    Single a
+      #|    Single 97
       #|)
     ,
   )?
@@ -420,7 +435,7 @@ test "should parse named group" {
       #|Ast:
       #|Capture 0
       #|  Capture 1
-      #|    Single a
+      #|    Single 97
       #|)
     ,
   )?
@@ -449,7 +464,7 @@ test "should parse escape" {
       #|Capture name mapping: Map::[]
       #|Ast:
       #|Capture 0
-      #|  Single *
+      #|  Single 42
       #|)
     ,
   )?
@@ -461,7 +476,7 @@ test "should parse escape" {
       #|Capture name mapping: Map::[]
       #|Ast:
       #|Capture 0
-      #|  Single +
+      #|  Single 43
       #|)
     ,
   )?
@@ -473,7 +488,7 @@ test "should parse escape" {
       #|Capture name mapping: Map::[]
       #|Ast:
       #|Capture 0
-      #|  Single ?
+      #|  Single 63
       #|)
     ,
   )?
@@ -485,7 +500,7 @@ test "should parse escape" {
       #|Capture name mapping: Map::[]
       #|Ast:
       #|Capture 0
-      #|  Single a
+      #|  Single 97
       #|)
     ,
   )?
@@ -506,11 +521,11 @@ test "should parse common regexp" {
       #|    BeginOfLine
       #|    Capture 1
       #|      ClassLoop Greedy {1,} [a-zA-Z0-9._%+-]
-      #|    Single @
+      #|    Single 64
       #|    Capture 2
       #|      Concatenate
       #|        ClassLoop Greedy {1,} [a-zA-Z0-9.-]
-      #|        Single .
+      #|        Single 46
       #|        ClassLoop Greedy {2,} [a-zA-Z]
       #|    EndOfLine
       #|)
