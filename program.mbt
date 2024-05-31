@@ -31,8 +31,8 @@ fn debug_write(self : Program, buf : Buffer) -> Unit {
         pos += 2
       }
       Single | NotSingle => {
-        let char = Char::from_int(self.bytecodes[pos + 1])
-        buf.write_string("\(opcode) '\(char)'\n")
+        let char = self.bytecodes[pos + 1]
+        buf.write_string("\(opcode) \(char)\n")
         pos += 2
       }
       Class => {
@@ -44,9 +44,9 @@ fn debug_write(self : Program, buf : Buffer) -> Unit {
       SingleRepeat
       | NotSingleRepeat
       | SingleLoop | NotSingleLoop | SingleLazy | NotSingleLazy => {
-        let char = Char::from_int(self.bytecodes[pos + 1])
+        let char = self.bytecodes[pos + 1]
         let opd2 = self.bytecodes[pos + 2]
-        buf.write_string("\(opcode) '\(char)' \(opd2)\n")
+        buf.write_string("\(opcode) \(char) \(opd2)\n")
         pos += 3
       }
       BranchCount | BranchCountLazy => {
