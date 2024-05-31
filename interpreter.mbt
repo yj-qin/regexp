@@ -546,7 +546,7 @@ fn try_match(self : Interpreter, text : String) -> Bool {
           if count > 0 {
             self.op_push()
             self.track_push(count - 1)
-            self.track_push(text_pos - 1)
+            self.track_push(text_pos + 1)
           }
           self.advance(3)
           continue
@@ -560,7 +560,7 @@ fn try_match(self : Interpreter, text : String) -> Bool {
           if count > 0 {
             self.op_push()
             self.track_push(count - 1)
-            self.track_push(text_pos - 1)
+            self.track_push(text_pos + 1)
           }
           self.advance(3)
           continue
@@ -575,7 +575,7 @@ fn try_match(self : Interpreter, text : String) -> Bool {
           if count > 0 {
             self.op_push()
             self.track_push(count - 1)
-            self.track_push(text_pos - 1)
+            self.track_push(text_pos + 1)
           }
           self.advance(3)
           continue
@@ -590,10 +590,8 @@ fn try_match(self : Interpreter, text : String) -> Bool {
 
 fn debug_state(self : Interpreter) -> String {
   let buf = Buffer::make(0)
-  buf.write_string(
-    self.op_code.to_string() + " " + self.status.to_string() + "\n",
-  )
-  buf.write_string("op_pos: " + self.op_pos.to_string() + "\n")
+  let (op, _) = self.prog.debug_op(self.op_pos)
+  buf.write_string(op + "\n")
   buf.write_string("text_pos: " + self.text_pos.to_string() + "\n")
   buf.write_string("op_stack: " + self.op_stack.to_string() + "\n")
   buf.write_string("track_stack: " + self.track_stack.to_string() + "\n")

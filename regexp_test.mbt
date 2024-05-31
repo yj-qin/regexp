@@ -217,6 +217,33 @@ test "should match quantifier" {
   )?
 }
 
+test "should match non-greedy" {
+  inspect(
+    compile("a*?")?.matches("aaabc"),
+    content=
+      #|{success: true, captures: [""], capture_name_mapping: Map::[]}
+    ,
+  )?
+  inspect(
+    compile("a+?")?.matches("aaabc"),
+    content=
+      #|{success: true, captures: ["a"], capture_name_mapping: Map::[]}
+    ,
+  )?
+  inspect(
+    compile("a??")?.matches("aaabc"),
+    content=
+      #|{success: true, captures: [""], capture_name_mapping: Map::[]}
+    ,
+  )?
+  inspect(
+    compile("<.*?>")?.matches("<foo> <bar> new </bar> </foo>"),
+    content=
+      #|{success: true, captures: ["<foo>"], capture_name_mapping: Map::[]}
+    ,
+  )?
+}
+
 test "should match group" {
   inspect(
     compile("(abc)|(def)")?.matches("def"),
