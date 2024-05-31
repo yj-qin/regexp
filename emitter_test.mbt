@@ -8,7 +8,7 @@ test "should emit single" {
     content=
       #|0 BranchLazy 7
       #|2 SetMark
-      #|3 Single 'a'
+      #|3 Single 97
       #|5 CaptureMark 0
       #|7 Stop
       #|
@@ -22,9 +22,9 @@ test "should emit concat" {
     content=
       #|0 BranchLazy 11
       #|2 SetMark
-      #|3 Single 'a'
-      #|5 Single 'b'
-      #|7 Single 'c'
+      #|3 Single 97
+      #|5 Single 98
+      #|7 Single 99
       #|9 CaptureMark 0
       #|11 Stop
       #|
@@ -39,12 +39,12 @@ test "should emit alt" {
       #|0 BranchLazy 19
       #|2 SetMark
       #|3 BranchLazy 9
-      #|5 Single 'a'
+      #|5 Single 97
       #|7 Goto 17
       #|9 BranchLazy 15
-      #|11 Single 'b'
+      #|11 Single 98
       #|13 Goto 17
-      #|15 Single 'c'
+      #|15 Single 99
       #|17 CaptureMark 0
       #|19 Stop
       #|
@@ -58,7 +58,7 @@ test "should emit loop" {
     content=
       #|0 BranchLazy 8
       #|2 SetMark
-      #|3 SingleLoop 'a' 2147483647
+      #|3 SingleLoop 97 2147483647
       #|6 CaptureMark 0
       #|8 Stop
       #|
@@ -69,8 +69,8 @@ test "should emit loop" {
     content=
       #|0 BranchLazy 11
       #|2 SetMark
-      #|3 SingleRepeat 'a' 1
-      #|6 SingleLoop 'a' 2147483647
+      #|3 SingleRepeat 97 1
+      #|6 SingleLoop 97 2147483647
       #|9 CaptureMark 0
       #|11 Stop
       #|
@@ -81,7 +81,7 @@ test "should emit loop" {
     content=
       #|0 BranchLazy 8
       #|2 SetMark
-      #|3 SingleLoop 'a' 1
+      #|3 SingleLoop 97 1
       #|6 CaptureMark 0
       #|8 Stop
       #|
@@ -92,7 +92,7 @@ test "should emit loop" {
     content=
       #|0 BranchLazy 8
       #|2 SetMark
-      #|3 SingleRepeat 'a' 3
+      #|3 SingleRepeat 97 3
       #|6 CaptureMark 0
       #|8 Stop
       #|
@@ -103,8 +103,8 @@ test "should emit loop" {
     content=
       #|0 BranchLazy 11
       #|2 SetMark
-      #|3 SingleRepeat 'a' 1
-      #|6 SingleLoop 'a' 2
+      #|3 SingleRepeat 97 1
+      #|6 SingleLoop 97 2
       #|9 CaptureMark 0
       #|11 Stop
       #|
@@ -115,8 +115,8 @@ test "should emit loop" {
     content=
       #|0 BranchLazy 11
       #|2 SetMark
-      #|3 SingleRepeat 'a' 1
-      #|6 SingleLoop 'a' 2147483647
+      #|3 SingleRepeat 97 1
+      #|6 SingleLoop 97 2147483647
       #|9 CaptureMark 0
       #|11 Stop
       #|
@@ -127,7 +127,7 @@ test "should emit loop" {
     content=
       #|0 BranchLazy 8
       #|2 SetMark
-      #|3 SingleLazy 'a' 2147483647
+      #|3 SingleLazy 97 2147483647
       #|6 CaptureMark 0
       #|8 Stop
       #|
@@ -138,8 +138,8 @@ test "should emit loop" {
     content=
       #|0 BranchLazy 11
       #|2 SetMark
-      #|3 SingleRepeat 'a' 1
-      #|6 SingleLazy 'a' 2147483647
+      #|3 SingleRepeat 97 1
+      #|6 SingleLazy 97 2147483647
       #|9 CaptureMark 0
       #|11 Stop
       #|
@@ -150,7 +150,7 @@ test "should emit loop" {
     content=
       #|0 BranchLazy 8
       #|2 SetMark
-      #|3 SingleLazy 'a' 1
+      #|3 SingleLazy 97 1
       #|6 CaptureMark 0
       #|8 Stop
       #|
@@ -161,8 +161,8 @@ test "should emit loop" {
     content=
       #|0 BranchLazy 11
       #|2 SetMark
-      #|3 SingleRepeat 'a' 1
-      #|6 SingleLazy 'a' 1
+      #|3 SingleRepeat 97 1
+      #|6 SingleLazy 97 1
       #|9 CaptureMark 0
       #|11 Stop
       #|
@@ -213,9 +213,9 @@ test "should emit group" {
       #|0 BranchLazy 14
       #|2 SetMark
       #|3 SetMark
-      #|4 Single 'a'
-      #|6 Single 'b'
-      #|8 Single 'c'
+      #|4 Single 97
+      #|6 Single 98
+      #|8 Single 99
       #|10 CaptureMark 1
       #|12 CaptureMark 0
       #|14 Stop
@@ -229,10 +229,10 @@ test "should emit group" {
       #|2 SetMark
       #|3 SetMark
       #|4 SetMark
-      #|5 Single 'a'
+      #|5 Single 97
       #|7 CaptureMark 2
-      #|9 Single 'b'
-      #|11 Single 'c'
+      #|9 Single 98
+      #|11 Single 99
       #|13 CaptureMark 1
       #|15 CaptureMark 0
       #|17 Stop
@@ -247,11 +247,11 @@ test "should emit group" {
       #|3 SetMark
       #|4 BranchLazy 13
       #|6 SetMark
-      #|7 Single 'a'
+      #|7 Single 97
       #|9 CaptureMark 2
       #|11 Goto 18
       #|13 SetMark
-      #|14 Single 'b'
+      #|14 Single 98
       #|16 CaptureMark 3
       #|18 CaptureMark 1
       #|20 CaptureMark 0
@@ -267,9 +267,9 @@ test "should emit non-capturing group" {
     content=
       #|0 BranchLazy 11
       #|2 SetMark
-      #|3 Single 'a'
-      #|5 Single 'b'
-      #|7 Single 'c'
+      #|3 Single 97
+      #|5 Single 98
+      #|7 Single 99
       #|9 CaptureMark 0
       #|11 Stop
       #|
@@ -284,9 +284,9 @@ test "should emit named group" {
       #|0 BranchLazy 14
       #|2 SetMark
       #|3 SetMark
-      #|4 Single 'a'
-      #|6 Single 'b'
-      #|8 Single 'c'
+      #|4 Single 97
+      #|6 Single 98
+      #|8 Single 99
       #|10 CaptureMark 1
       #|12 CaptureMark 0
       #|14 Stop
@@ -307,11 +307,11 @@ test "should emit common pattern" {
       #|5 ClassRepeat [a-zA-Z0-9._%+-] 1
       #|8 ClassLoop [a-zA-Z0-9._%+-] 2147483647
       #|11 CaptureMark 1
-      #|13 Single '@'
+      #|13 Single 64
       #|15 SetMark
       #|16 ClassRepeat [a-zA-Z0-9.-] 1
       #|19 ClassLoop [a-zA-Z0-9.-] 2147483647
-      #|22 Single '.'
+      #|22 Single 46
       #|24 ClassRepeat [a-zA-Z] 2
       #|27 ClassLoop [a-zA-Z] 2147483647
       #|30 CaptureMark 2
