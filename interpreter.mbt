@@ -16,7 +16,7 @@ priv struct Interpreter {
   track_stack : Array[Int]
   run_stack : Array[Int]
   capture_stack : Array[Int]
-  captures : FixedArray[Option[(Int, Int)]]
+  captures : FixedArray[(Int, Int)?]
 }
 
 fn Interpreter::new(prog : Program) -> Interpreter {

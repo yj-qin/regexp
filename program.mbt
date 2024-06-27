@@ -2,7 +2,7 @@ priv struct Program {
   bytecodes : Array[Int]
   classes : Array[CharClass]
   capture_num : Int
-  capture_name_mapping : @map.Map[String, Int]
+  capture_name_mapping : Map[String, Int]
 } derive(Show)
 
 fn op_code(self : Program, pos : Int) -> OpCode {
