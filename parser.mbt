@@ -44,7 +44,7 @@ fn Parser::new(pattern : String) -> Parser {
     pos_mark: 0,
     group_index: 0,
     capture_num: 0,
-    capture_name_mapping: Map::[],
+    capture_name_mapping: {  },
   }
 }
 

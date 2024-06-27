@@ -36,7 +36,7 @@ test "get captures" {
   let res = {
     success: true,
     captures: ["111222333", "111", "222", "333"],
-    capture_name_mapping: Map::[("a", 1), ("b", 2), ("c", 3)],
+    capture_name_mapping: { "a": 1, "b": 2, "c": 3 },
   }
   inspect(res.success(), content="true")?
   inspect(res.capture(0), content="Some(111222333)")?
