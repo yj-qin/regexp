@@ -1,5 +1,9 @@
 fn test_parse(s : String) -> Result[Ast, String] {
-  Parser::new(s).parse()
+  try {
+    Ok(Parser::new(s).parse()!)
+  } catch {
+    err => Err(err)
+  }
 }
 
 // #region single
@@ -9,7 +13,7 @@ test "should parse single char" {
     content=
       #|Ok(
       #|Number of captures: 1
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  Single 97
@@ -24,7 +28,7 @@ test "should parse any char" {
     content=
       #|Ok(
       #|Number of captures: 1
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  NotSingle 10
@@ -41,7 +45,7 @@ test "should parse concat" {
     content=
       #|Ok(
       #|Number of captures: 1
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  Concatenate
@@ -61,7 +65,7 @@ test "should parse alt" {
     content=
       #|Ok(
       #|Number of captures: 1
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  Alternate
@@ -81,7 +85,7 @@ test "should parse star" {
     content=
       #|Ok(
       #|Number of captures: 1
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  SingleLoop Greedy {0,} 97
@@ -96,7 +100,7 @@ test "should parse plus" {
     content=
       #|Ok(
       #|Number of captures: 1
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  SingleLoop Greedy {1,} 97
@@ -111,7 +115,7 @@ test "should parse quest" {
     content=
       #|Ok(
       #|Number of captures: 1
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  SingleLoop Greedy {0,1} 97
@@ -126,7 +130,7 @@ test "should parse exact loop" {
     content=
       #|Ok(
       #|Number of captures: 1
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  SingleLoop Greedy {2} 97
@@ -141,7 +145,7 @@ test "should parse loop [min, max]" {
     content=
       #|Ok(
       #|Number of captures: 1
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  SingleLoop Greedy {1,2} 97
@@ -156,7 +160,7 @@ test "should parse loop [min, infinity]" {
     content=
       #|Ok(
       #|Number of captures: 1
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  SingleLoop Greedy {0,} 97
@@ -171,7 +175,7 @@ test "should parse non-greedy" {
     content=
       #|Ok(
       #|Number of captures: 1
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  SingleLoop NonGreedy {0,} 97
@@ -183,7 +187,7 @@ test "should parse non-greedy" {
     content=
       #|Ok(
       #|Number of captures: 1
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  SingleLoop NonGreedy {1,} 97
@@ -195,7 +199,7 @@ test "should parse non-greedy" {
     content=
       #|Ok(
       #|Number of captures: 1
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  SingleLoop NonGreedy {0,1} 97
@@ -207,7 +211,7 @@ test "should parse non-greedy" {
     content=
       #|Ok(
       #|Number of captures: 1
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  SingleLoop NonGreedy {0,2} 97
@@ -230,7 +234,7 @@ test "should parse class" {
     content=
       #|Ok(
       #|Number of captures: 1
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  Class [abc]
@@ -245,7 +249,7 @@ test "should parse range class" {
     content=
       #|Ok(
       #|Number of captures: 1
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  Class [a-z]
@@ -257,7 +261,7 @@ test "should parse range class" {
     content=
       #|Ok(
       #|Number of captures: 1
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  Class [a-zA-Z]
@@ -269,7 +273,7 @@ test "should parse range class" {
     content=
       #|Ok(
       #|Number of captures: 1
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  Class [0-9]
@@ -284,7 +288,7 @@ test "should parse negated class" {
     content=
       #|Ok(
       #|Number of captures: 1
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  Class [^abc]
@@ -305,7 +309,7 @@ test "should parse group" {
     content=
       #|Ok(
       #|Number of captures: 2
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  Capture 1
@@ -318,7 +322,7 @@ test "should parse group" {
     content=
       #|Ok(
       #|Number of captures: 3
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  Concatenate
@@ -337,7 +341,7 @@ test "should parse nested group" {
     content=
       #|Ok(
       #|Number of captures: 3
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  Capture 1
@@ -357,7 +361,7 @@ test "should parse nested group concat" {
     content=
       #|Ok(
       #|Number of captures: 4
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  Capture 1
@@ -377,7 +381,7 @@ test "should parse nested group alt" {
     content=
       #|Ok(
       #|Number of captures: 3
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  Capture 1
@@ -395,7 +399,7 @@ test "should parse nested group alt" {
     content=
       #|Ok(
       #|Number of captures: 4
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  Capture 1
@@ -415,7 +419,7 @@ test "should parse non-capturing group" {
     content=
       #|Ok(
       #|Number of captures: 1
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  Group
@@ -431,7 +435,7 @@ test "should parse named group" {
     content=
       #|Ok(
       #|Number of captures: 2
-      #|Capture name mapping: Map::[("group1", 1)]
+      #|Capture name mapping: {group1:1}
       #|Ast:
       #|Capture 0
       #|  Capture 1
@@ -461,7 +465,7 @@ test "should parse escape" {
     content=
       #|Ok(
       #|Number of captures: 1
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  Single 42
@@ -473,7 +477,7 @@ test "should parse escape" {
     content=
       #|Ok(
       #|Number of captures: 1
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  Single 43
@@ -485,7 +489,7 @@ test "should parse escape" {
     content=
       #|Ok(
       #|Number of captures: 1
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  Single 63
@@ -497,7 +501,7 @@ test "should parse escape" {
     content=
       #|Ok(
       #|Number of captures: 1
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  Single 97
@@ -514,7 +518,7 @@ test "should parse common regexp" {
     content=
       #|Ok(
       #|Number of captures: 3
-      #|Capture name mapping: Map::[]
+      #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
       #|  Concatenate

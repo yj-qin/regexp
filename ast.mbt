@@ -5,22 +5,22 @@ priv enum AstNodeInternal {
   NotSingle(~char : Char)
   Class(~class : CharClass)
   // Multi(~str : String)
-  SingleLoop(~char : Char, ~min : Int, ~max : Option[Int], ~greedy : Bool)
-  NotSingleLoop(~char : Char, ~min : Int, ~max : Option[Int], ~greedy : Bool)
-  ClassLoop(~class : CharClass, ~min : Int, ~max : Option[Int], ~greedy : Bool)
+  SingleLoop(~char : Char, ~min : Int, ~max : Int?, ~greedy : Bool)
+  NotSingleLoop(~char : Char, ~min : Int, ~max : Int?, ~greedy : Bool)
+  ClassLoop(~class : CharClass, ~min : Int, ~max : Int?, ~greedy : Bool)
   // Backreference(~index : Int)
   BeginOfInput
   EndOfInput
   // Branch nodes of the AST that have at least one child.
   Alternate
   Concatenate
-  Loop(~min : Int, ~max : Option[Int], ~greedy : Bool)
+  Loop(~min : Int, ~max : Int?, ~greedy : Bool)
   Capture(~index : Int)
   Group
 } derive(Eq)
 
 fn to_string(self : AstNodeInternal) -> String {
-  fn range_str(min : Int, max : Option[Int]) {
+  fn range_str(min : Int, max : Int?) {
     match max {
       Some(max) => if min == max { "{\(min)} " } else { "{\(min),\(max)} " }
       None => "{\(min),} "
@@ -59,13 +59,13 @@ fn to_string(self : AstNodeInternal) -> String {
 
 priv struct AstNode {
   internal : AstNodeInternal
-  mut parent : Option[AstNode]
+  mut parent : AstNode?
   children : Array[AstNode]
 }
 
 fn AstNode::new(
   internal : AstNodeInternal,
-  ~parent : Option[AstNode] = None,
+  ~parent : AstNode? = None,
   ~children : Array[AstNode] = []
 ) -> AstNode {
   { internal, parent, children }
@@ -118,7 +118,7 @@ fn to_string(self : AstNode) -> String {
 priv struct Ast {
   root : AstNode
   capture_num : Int
-  capture_name_mapping : @map.Map[String, Int]
+  capture_name_mapping : Map[String, Int]
 }
 
 fn to_string(self : Ast) -> String {
@@ -127,7 +127,7 @@ fn to_string(self : Ast) -> String {
   buf.write_string("Number of captures: " + self.capture_num.to_string())
   buf.write_char('\n')
   buf.write_string("Capture name mapping: ")
-  self.capture_name_mapping.debug_write(buf)
+  buf.write_string(self.capture_name_mapping.to_string())
   buf.write_char('\n')
   buf.write_string("Ast:\n")
   buf.write_string(self.root.to_string())

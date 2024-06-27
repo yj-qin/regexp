@@ -3,14 +3,14 @@ struct RegExp {
   prog : Program
 }
 
-fn RegExp::new(pattern : String) -> Result[RegExp, String] {
-  let ast = Parser::new(pattern).parse()?
+fn RegExp::new(pattern : String) -> RegExp! {
+  let ast = Parser::new(pattern).parse()!
   let prog = Emitter::new(ast).emit()
-  Ok({ pattern, prog })
+  { pattern, prog }
 }
 
-pub fn compile(pattern : String) -> Result[RegExp, String] {
-  RegExp::new(pattern)
+pub fn compile(pattern : String) -> RegExp! {
+  RegExp::new(pattern)!
 }
 
 pub fn pattern(self : RegExp) -> String {
