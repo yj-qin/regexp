@@ -6,7 +6,7 @@ test "should match single" {
       #|captures: [a]
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("d")!.matches("abc"),
     content=
@@ -14,7 +14,7 @@ test "should match single" {
       #|captures: []
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
 }
 
 test "should match concat" {
@@ -25,7 +25,7 @@ test "should match concat" {
       #|captures: [cde]
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("efg")!.matches("abcdef"),
     content=
@@ -33,7 +33,7 @@ test "should match concat" {
       #|captures: []
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
 }
 
 test "should match alt" {
@@ -44,7 +44,7 @@ test "should match alt" {
       #|captures: [a]
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("a|b|c")!.matches("b"),
     content=
@@ -52,7 +52,7 @@ test "should match alt" {
       #|captures: [b]
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("a|b|c")!.matches("c"),
     content=
@@ -60,7 +60,7 @@ test "should match alt" {
       #|captures: [c]
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("a|b|c")!.matches("d"),
     content=
@@ -68,7 +68,7 @@ test "should match alt" {
       #|captures: []
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
 }
 
 test "should match class" {
@@ -79,7 +79,7 @@ test "should match class" {
       #|captures: [a]
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("[abc]")!.matches("d"),
     content=
@@ -87,7 +87,7 @@ test "should match class" {
       #|captures: []
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("[^abc]")!.matches("a"),
     content=
@@ -95,7 +95,7 @@ test "should match class" {
       #|captures: []
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("[^abc]")!.matches("d"),
     content=
@@ -103,7 +103,7 @@ test "should match class" {
       #|captures: [d]
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("[a-zA-Z]")!.matches("A"),
     content=
@@ -111,7 +111,7 @@ test "should match class" {
       #|captures: [A]
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("[a-zA-Z]")!.matches("0"),
     content=
@@ -119,7 +119,7 @@ test "should match class" {
       #|captures: []
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
 }
 
 test "should match assert" {
@@ -130,7 +130,7 @@ test "should match assert" {
       #|captures: [abc]
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("^def")!.matches("abcdef"),
     content=
@@ -138,7 +138,7 @@ test "should match assert" {
       #|captures: []
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("abc$")!.matches("abcdef"),
     content=
@@ -146,7 +146,7 @@ test "should match assert" {
       #|captures: []
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("def$")!.matches("abcdef"),
     content=
@@ -154,7 +154,7 @@ test "should match assert" {
       #|captures: [def]
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
 }
 
 test "should match one or more" {
@@ -165,7 +165,7 @@ test "should match one or more" {
       #|captures: [aaa]
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("a+")!.matches("b"),
     content=
@@ -173,7 +173,7 @@ test "should match one or more" {
       #|captures: []
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
 }
 
 test "should match zero or more" {
@@ -184,7 +184,7 @@ test "should match zero or more" {
       #|captures: [aaa]
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("a*")!.matches("b"),
     content=
@@ -192,7 +192,7 @@ test "should match zero or more" {
       #|captures: []
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
 }
 
 test "should match zero or one" {
@@ -203,7 +203,7 @@ test "should match zero or one" {
       #|captures: [a]
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("a?")!.matches("b"),
     content=
@@ -211,7 +211,7 @@ test "should match zero or one" {
       #|captures: []
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
 }
 
 test "should match quantifier" {
@@ -222,7 +222,7 @@ test "should match quantifier" {
       #|captures: [aa]
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("a{2}")!.matches("a"),
     content=
@@ -230,7 +230,7 @@ test "should match quantifier" {
       #|captures: []
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("a{1,2}")!.matches(""),
     content=
@@ -238,7 +238,7 @@ test "should match quantifier" {
       #|captures: []
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("a{1,2}")!.matches("a"),
     content=
@@ -246,7 +246,7 @@ test "should match quantifier" {
       #|captures: [a]
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("a{1,2}")!.matches("aa"),
     content=
@@ -254,7 +254,7 @@ test "should match quantifier" {
       #|captures: [aa]
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("a{2,}")!.matches("a"),
     content=
@@ -262,7 +262,7 @@ test "should match quantifier" {
       #|captures: []
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("a{2,}")!.matches("aa"),
     content=
@@ -270,7 +270,7 @@ test "should match quantifier" {
       #|captures: [aa]
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("a{2,}")!.matches("aaaaaaaaaaaaa"),
     content=
@@ -278,7 +278,7 @@ test "should match quantifier" {
       #|captures: [aaaaaaaaaaaaa]
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
 }
 
 test "should match non-greedy" {
@@ -289,7 +289,7 @@ test "should match non-greedy" {
       #|captures: []
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("a+?")!.matches("aaabc"),
     content=
@@ -297,7 +297,7 @@ test "should match non-greedy" {
       #|captures: [a]
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("a??")!.matches("aaabc"),
     content=
@@ -305,7 +305,7 @@ test "should match non-greedy" {
       #|captures: []
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("<.*?>")!.matches("<foo> <bar> new </bar> </foo>"),
     content=
@@ -313,7 +313,7 @@ test "should match non-greedy" {
       #|captures: [<foo>]
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
 }
 
 test "should match group" {
@@ -324,7 +324,7 @@ test "should match group" {
       #|captures: [def, , def]
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("(a*)bc")!.matches("aaaaabc"),
     content=
@@ -332,7 +332,7 @@ test "should match group" {
       #|captures: [aaaaabc, aaaaa]
       #|capture_name_mapping: {}
     ,
-  )?
+  )!
   inspect(
     compile("(Hello, (?<name>[a-zA-Z]{2,})!) Welcome!")!.matches(
       "Hello, John! Welcome!",
@@ -342,7 +342,7 @@ test "should match group" {
       #|captures: [Hello, John! Welcome!, Hello, John!, John]
       #|capture_name_mapping: {name:2}
     ,
-  )?
+  )!
 }
 
 test "should match common pattern" {
@@ -355,5 +355,5 @@ test "should match common pattern" {
       #|captures: [123456@test.com, 123456, test.com]
       #|capture_name_mapping: {addr:1, host:2}
     ,
-  )?
+  )!
 }

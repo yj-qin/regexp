@@ -101,7 +101,7 @@ fn check_exist(self : Parser, c : Char) -> Bool {
 }
 
 fn fetch_unsigned_num(self : Parser) -> Int? {
-  let num_buf = Buffer::make(0)
+  let num_buf = Buffer::new()
   loop self.peek() {
     '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' as d => {
       num_buf.write_char(d)
@@ -343,7 +343,7 @@ fn parse_group(self : Parser) -> AstNode! {
 
 fn parse_group_name(self : Parser) -> String! {
   self.advance(1) // '<'
-  let buf = Buffer::make(0)
+  let buf = Buffer::new()
   while self.more() && self.peek_is('>').not() {
     buf.write_char(self.peek())
     self.advance(1)

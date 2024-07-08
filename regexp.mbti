@@ -1,14 +1,14 @@
 package yj-qin/regexp
 
 // Values
-fn compile(String) -> Result[RegExp, String]
+fn compile(String) -> RegExp!String
 
 // Types and methods
 type Match
 impl Match {
-  capture(Self, Int) -> Option[String]
+  capture(Self, Int) -> String?
   debug_write(Self, Buffer) -> Unit
-  named(Self, String) -> Option[String]
+  named(Self, String) -> String?
   success(Self) -> Bool
   to_string(Self) -> String
 }

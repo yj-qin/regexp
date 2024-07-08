@@ -589,7 +589,7 @@ fn try_match(self : Interpreter, text : String) -> Bool {
 }
 
 fn debug_state(self : Interpreter) -> String {
-  let buf = Buffer::make(0)
+  let buf = Buffer::new()
   let (op, _) = self.prog.debug_op(self.op_pos)
   buf.write_string(op + "\n")
   buf.write_string("text_pos: " + self.text_pos.to_string() + "\n")

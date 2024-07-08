@@ -25,7 +25,7 @@ fn debug_write(self : Program, buf : Buffer) -> Unit {
 
 fn debug_op(self : Program, pos : Int) -> (String, Int) {
   let mut size = 0
-  let buf = Buffer::make(0)
+  let buf = Buffer::new()
   buf.write_string("\(pos) ")
   let opcode = OpCode::from_bytecode(self.bytecodes[pos])
   match opcode {

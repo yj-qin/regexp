@@ -85,7 +85,7 @@ fn child_num(self : AstNode) -> Int {
 }
 
 fn to_string(self : AstNode) -> String {
-  let buf = Buffer::make(0)
+  let buf = Buffer::new()
   let mut cur_node = self
   let mut cur_child = 0
   let stack = []
@@ -122,7 +122,7 @@ priv struct Ast {
 }
 
 fn to_string(self : Ast) -> String {
-  let buf = Buffer::make(0)
+  let buf = Buffer::new()
   buf.write_char('\n')
   buf.write_string("Number of captures: " + self.capture_num.to_string())
   buf.write_char('\n')
