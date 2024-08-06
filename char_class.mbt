@@ -1,7 +1,7 @@
 priv struct CharClass {
   neg : Bool
   ranges : Array[Int]
-} derive(Show, Eq)
+} derive(Eq)
 
 fn CharClass::new(ranges : Array[Int], neg : Bool) -> CharClass {
   { neg, ranges }
@@ -24,21 +24,25 @@ fn contains(self : CharClass, char : Int) -> Bool {
   }
 }
 
-fn debug_write(self : CharClass, buf : Buffer) -> Unit {
-  buf.write_char('[')
+impl Show for CharClass with output(self, logger) -> Unit {
+  logger.write_char('[')
   if self.neg {
-    buf.write_char('^')
+    logger.write_char('^')
   }
   for i = 0; i < self.ranges.length(); i = i + 2 {
     let min = self.ranges[i]
     let max = self.ranges[i + 1]
     if min == max {
-      buf.write_char(Char::from_int(min))
+      logger.write_char(Char::from_int(min))
     } else {
-      buf.write_char(Char::from_int(min))
-      buf.write_char('-')
-      buf.write_char(Char::from_int(max))
+      logger.write_char(Char::from_int(min))
+      logger.write_char('-')
+      logger.write_char(Char::from_int(max))
     }
   }
-  buf.write_char(']')
+  logger.write_char(']')
+}
+
+fn to_string(self : CharClass) -> String {
+  Show::to_string(self)
 }

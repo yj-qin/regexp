@@ -1,359 +1,279 @@
 test "should match single" {
-  inspect(
-    compile("a")!.matches("abc"),
+  inspect!(
+    @regexp.compile!("a").matches("abc"),
     content=
-      #|success: true
-      #|captures: [a]
-      #|capture_name_mapping: {}
+      #|{success: true, captures: ["a"], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("d")!.matches("abc"),
+  )
+  inspect!(
+    @regexp.compile!("d").matches("abc"),
     content=
-      #|success: false
-      #|captures: []
-      #|capture_name_mapping: {}
+      #|{success: false, captures: [""], capture_name_mapping: {}}
     ,
-  )!
+  )
 }
 
 test "should match concat" {
-  inspect(
-    compile("cde")!.matches("abcdef"),
+  inspect!(
+    @regexp.compile!("cde").matches("abcdef"),
     content=
-      #|success: true
-      #|captures: [cde]
-      #|capture_name_mapping: {}
+      #|{success: true, captures: ["cde"], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("efg")!.matches("abcdef"),
+  )
+  inspect!(
+    @regexp.compile!("efg").matches("abcdef"),
     content=
-      #|success: false
-      #|captures: []
-      #|capture_name_mapping: {}
+      #|{success: false, captures: [""], capture_name_mapping: {}}
     ,
-  )!
+  )
 }
 
 test "should match alt" {
-  inspect(
-    compile("a|b|c")!.matches("a"),
+  inspect!(
+    @regexp.compile!("a|b|c").matches("a"),
     content=
-      #|success: true
-      #|captures: [a]
-      #|capture_name_mapping: {}
+      #|{success: true, captures: ["a"], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("a|b|c")!.matches("b"),
+  )
+  inspect!(
+    @regexp.compile!("a|b|c").matches("b"),
     content=
-      #|success: true
-      #|captures: [b]
-      #|capture_name_mapping: {}
+      #|{success: true, captures: ["b"], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("a|b|c")!.matches("c"),
+  )
+  inspect!(
+    @regexp.compile!("a|b|c").matches("c"),
     content=
-      #|success: true
-      #|captures: [c]
-      #|capture_name_mapping: {}
+      #|{success: true, captures: ["c"], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("a|b|c")!.matches("d"),
+  )
+  inspect!(
+    @regexp.compile!("a|b|c").matches("d"),
     content=
-      #|success: false
-      #|captures: []
-      #|capture_name_mapping: {}
+      #|{success: false, captures: [""], capture_name_mapping: {}}
     ,
-  )!
+  )
 }
 
 test "should match class" {
-  inspect(
-    compile("[abc]")!.matches("a"),
+  inspect!(
+    @regexp.compile!("[abc]").matches("a"),
     content=
-      #|success: true
-      #|captures: [a]
-      #|capture_name_mapping: {}
+      #|{success: true, captures: ["a"], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("[abc]")!.matches("d"),
+  )
+  inspect!(
+    @regexp.compile!("[abc]").matches("d"),
     content=
-      #|success: false
-      #|captures: []
-      #|capture_name_mapping: {}
+      #|{success: false, captures: [""], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("[^abc]")!.matches("a"),
+  )
+  inspect!(
+    @regexp.compile!("[^abc]").matches("a"),
     content=
-      #|success: false
-      #|captures: []
-      #|capture_name_mapping: {}
+      #|{success: false, captures: [""], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("[^abc]")!.matches("d"),
+  )
+  inspect!(
+    @regexp.compile!("[^abc]").matches("d"),
     content=
-      #|success: true
-      #|captures: [d]
-      #|capture_name_mapping: {}
+      #|{success: true, captures: ["d"], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("[a-zA-Z]")!.matches("A"),
+  )
+  inspect!(
+    @regexp.compile!("[a-zA-Z]").matches("A"),
     content=
-      #|success: true
-      #|captures: [A]
-      #|capture_name_mapping: {}
+      #|{success: true, captures: ["A"], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("[a-zA-Z]")!.matches("0"),
+  )
+  inspect!(
+    @regexp.compile!("[a-zA-Z]").matches("0"),
     content=
-      #|success: false
-      #|captures: []
-      #|capture_name_mapping: {}
+      #|{success: false, captures: [""], capture_name_mapping: {}}
     ,
-  )!
+  )
 }
 
 test "should match assert" {
-  inspect(
-    compile("^abc")!.matches("abcdef"),
+  inspect!(
+    @regexp.compile!("^abc").matches("abcdef"),
     content=
-      #|success: true
-      #|captures: [abc]
-      #|capture_name_mapping: {}
+      #|{success: true, captures: ["abc"], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("^def")!.matches("abcdef"),
+  )
+  inspect!(
+    @regexp.compile!("^def").matches("abcdef"),
     content=
-      #|success: false
-      #|captures: []
-      #|capture_name_mapping: {}
+      #|{success: false, captures: [""], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("abc$")!.matches("abcdef"),
+  )
+  inspect!(
+    @regexp.compile!("abc$").matches("abcdef"),
     content=
-      #|success: false
-      #|captures: []
-      #|capture_name_mapping: {}
+      #|{success: false, captures: [""], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("def$")!.matches("abcdef"),
+  )
+  inspect!(
+    @regexp.compile!("def$").matches("abcdef"),
     content=
-      #|success: true
-      #|captures: [def]
-      #|capture_name_mapping: {}
+      #|{success: true, captures: ["def"], capture_name_mapping: {}}
     ,
-  )!
+  )
 }
 
 test "should match one or more" {
-  inspect(
-    compile("a+")!.matches("aaa"),
+  inspect!(
+    @regexp.compile!("a+").matches("aaa"),
     content=
-      #|success: true
-      #|captures: [aaa]
-      #|capture_name_mapping: {}
+      #|{success: true, captures: ["aaa"], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("a+")!.matches("b"),
+  )
+  inspect!(
+    @regexp.compile!("a+").matches("b"),
     content=
-      #|success: false
-      #|captures: []
-      #|capture_name_mapping: {}
+      #|{success: false, captures: [""], capture_name_mapping: {}}
     ,
-  )!
+  )
 }
 
 test "should match zero or more" {
-  inspect(
-    compile("a*")!.matches("aaa"),
+  inspect!(
+    @regexp.compile!("a*").matches("aaa"),
     content=
-      #|success: true
-      #|captures: [aaa]
-      #|capture_name_mapping: {}
+      #|{success: true, captures: ["aaa"], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("a*")!.matches("b"),
+  )
+  inspect!(
+    @regexp.compile!("a*").matches("b"),
     content=
-      #|success: true
-      #|captures: []
-      #|capture_name_mapping: {}
+      #|{success: true, captures: [""], capture_name_mapping: {}}
     ,
-  )!
+  )
 }
 
 test "should match zero or one" {
-  inspect(
-    compile("a?")!.matches("aaa"),
+  inspect!(
+    @regexp.compile!("a?").matches("aaa"),
     content=
-      #|success: true
-      #|captures: [a]
-      #|capture_name_mapping: {}
+      #|{success: true, captures: ["a"], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("a?")!.matches("b"),
+  )
+  inspect!(
+    @regexp.compile!("a?").matches("b"),
     content=
-      #|success: true
-      #|captures: []
-      #|capture_name_mapping: {}
+      #|{success: true, captures: [""], capture_name_mapping: {}}
     ,
-  )!
+  )
 }
 
 test "should match quantifier" {
-  inspect(
-    compile("a{2}")!.matches("aa"),
+  inspect!(
+    @regexp.compile!("a{2}").matches("aa"),
     content=
-      #|success: true
-      #|captures: [aa]
-      #|capture_name_mapping: {}
+      #|{success: true, captures: ["aa"], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("a{2}")!.matches("a"),
+  )
+  inspect!(
+    @regexp.compile!("a{2}").matches("a"),
     content=
-      #|success: false
-      #|captures: []
-      #|capture_name_mapping: {}
+      #|{success: false, captures: [""], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("a{1,2}")!.matches(""),
+  )
+  inspect!(
+    @regexp.compile!("a{1,2}").matches(""),
     content=
-      #|success: false
-      #|captures: []
-      #|capture_name_mapping: {}
+      #|{success: false, captures: [""], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("a{1,2}")!.matches("a"),
+  )
+  inspect!(
+    @regexp.compile!("a{1,2}").matches("a"),
     content=
-      #|success: true
-      #|captures: [a]
-      #|capture_name_mapping: {}
+      #|{success: true, captures: ["a"], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("a{1,2}")!.matches("aa"),
+  )
+  inspect!(
+    @regexp.compile!("a{1,2}").matches("aa"),
     content=
-      #|success: true
-      #|captures: [aa]
-      #|capture_name_mapping: {}
+      #|{success: true, captures: ["aa"], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("a{2,}")!.matches("a"),
+  )
+  inspect!(
+    @regexp.compile!("a{2,}").matches("a"),
     content=
-      #|success: false
-      #|captures: []
-      #|capture_name_mapping: {}
+      #|{success: false, captures: [""], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("a{2,}")!.matches("aa"),
+  )
+  inspect!(
+    @regexp.compile!("a{2,}").matches("aa"),
     content=
-      #|success: true
-      #|captures: [aa]
-      #|capture_name_mapping: {}
+      #|{success: true, captures: ["aa"], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("a{2,}")!.matches("aaaaaaaaaaaaa"),
+  )
+  inspect!(
+    @regexp.compile!("a{2,}").matches("aaaaaaaaaaaaa"),
     content=
-      #|success: true
-      #|captures: [aaaaaaaaaaaaa]
-      #|capture_name_mapping: {}
+      #|{success: true, captures: ["aaaaaaaaaaaaa"], capture_name_mapping: {}}
     ,
-  )!
+  )
 }
 
 test "should match non-greedy" {
-  inspect(
-    compile("a*?")!.matches("aaabc"),
+  inspect!(
+    @regexp.compile!("a*?").matches("aaabc"),
     content=
-      #|success: true
-      #|captures: []
-      #|capture_name_mapping: {}
+      #|{success: true, captures: [""], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("a+?")!.matches("aaabc"),
+  )
+  inspect!(
+    @regexp.compile!("a+?").matches("aaabc"),
     content=
-      #|success: true
-      #|captures: [a]
-      #|capture_name_mapping: {}
+      #|{success: true, captures: ["a"], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("a??")!.matches("aaabc"),
+  )
+  inspect!(
+    @regexp.compile!("a??").matches("aaabc"),
     content=
-      #|success: true
-      #|captures: []
-      #|capture_name_mapping: {}
+      #|{success: true, captures: [""], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("<.*?>")!.matches("<foo> <bar> new </bar> </foo>"),
+  )
+  inspect!(
+    @regexp.compile!("<.*?>").matches("<foo> <bar> new </bar> </foo>"),
     content=
-      #|success: true
-      #|captures: [<foo>]
-      #|capture_name_mapping: {}
+      #|{success: true, captures: ["<foo>"], capture_name_mapping: {}}
     ,
-  )!
+  )
 }
 
 test "should match group" {
-  inspect(
-    compile("(abc)|(def)")!.matches("def"),
+  inspect!(
+    @regexp.compile!("(abc)|(def)").matches("def"),
     content=
-      #|success: true
-      #|captures: [def, , def]
-      #|capture_name_mapping: {}
+      #|{success: true, captures: ["def", "", "def"], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("(a*)bc")!.matches("aaaaabc"),
+  )
+  inspect!(
+    @regexp.compile!("(a*)bc").matches("aaaaabc"),
     content=
-      #|success: true
-      #|captures: [aaaaabc, aaaaa]
-      #|capture_name_mapping: {}
+      #|{success: true, captures: ["aaaaabc", "aaaaa"], capture_name_mapping: {}}
     ,
-  )!
-  inspect(
-    compile("(Hello, (?<name>[a-zA-Z]{2,})!) Welcome!")!.matches(
+  )
+  inspect!(
+    @regexp.compile!("(Hello, (?<name>[a-zA-Z]{2,}))! Welcome!").matches(
       "Hello, John! Welcome!",
     ),
     content=
-      #|success: true
-      #|captures: [Hello, John! Welcome!, Hello, John!, John]
-      #|capture_name_mapping: {name:2}
+      #|{success: true, captures: ["Hello, John! Welcome!", "Hello, John", "John"], capture_name_mapping: {"name": 2}}
     ,
-  )!
+  )
 }
 
 test "should match common pattern" {
-  inspect(
-    compile(
+  inspect!(
+    @regexp.compile!(
       "^(?<addr>[a-zA-Z0-9._%+-]+)@(?<host>[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$",
-    )!.matches("123456@test.com"),
+    ).matches("123456@test.com"),
     content=
-      #|success: true
-      #|captures: [123456@test.com, 123456, test.com]
-      #|capture_name_mapping: {addr:1, host:2}
+      #|{success: true, captures: ["123456@test.com", "123456", "test.com"], capture_name_mapping: {"addr": 1, "host": 2}}
     ,
-  )!
+  )
 }

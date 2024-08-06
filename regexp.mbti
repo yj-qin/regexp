@@ -1,13 +1,12 @@
 package yj-qin/regexp
 
 // Values
-fn compile(String) -> RegExp!String
+fn compile(String) -> RegExp!
 
 // Types and methods
 type Match
 impl Match {
   capture(Self, Int) -> String?
-  debug_write(Self, Buffer) -> Unit
   named(Self, String) -> String?
   success(Self) -> Bool
   to_string(Self) -> String
@@ -22,4 +21,5 @@ impl RegExp {
 // Traits
 
 // Extension Methods
+impl Show for Match
 
