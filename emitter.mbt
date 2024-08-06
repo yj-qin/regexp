@@ -49,7 +49,7 @@ fn emit(self : Emitter) -> Program {
   self.emit_1(BranchLazy, 0)
   let mut cur_node = self.ast.root
   let mut cur_child = 0
-  for ; ; {
+  for {
     let cur_child_num = cur_node.child_num()
     if cur_child_num == 0 {
       self.emit_fragment(cur_node, 0)

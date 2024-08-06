@@ -91,7 +91,7 @@ fn to_string(self : AstNode) -> String {
   let stack = []
   buf.write_string(cur_node.internal.to_string())
   buf.write_char('\n')
-  for ; ; {
+  for {
     if cur_child < cur_node.child_num() {
       stack.push(cur_child + 1)
       cur_node = cur_node.get_child(cur_child)
@@ -121,15 +121,17 @@ priv struct Ast {
   capture_name_mapping : Map[String, Int]
 }
 
+impl Show for Ast with output(self, logger) {
+  logger.write_char('\n')
+  logger.write_string("Number of captures: " + self.capture_num.to_string())
+  logger.write_char('\n')
+  logger.write_string("Capture name mapping: ")
+  logger.write_string(self.capture_name_mapping.to_string())
+  logger.write_char('\n')
+  logger.write_string("Ast:\n")
+  logger.write_string(self.root.to_string())
+}
+
 fn to_string(self : Ast) -> String {
-  let buf = Buffer::new()
-  buf.write_char('\n')
-  buf.write_string("Number of captures: " + self.capture_num.to_string())
-  buf.write_char('\n')
-  buf.write_string("Capture name mapping: ")
-  buf.write_string(self.capture_name_mapping.to_string())
-  buf.write_char('\n')
-  buf.write_string("Ast:\n")
-  buf.write_string(self.root.to_string())
-  buf.to_string()
+  Show::to_string(self)
 }

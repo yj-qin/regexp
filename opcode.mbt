@@ -29,7 +29,7 @@ priv enum OpCode {
   SetMark
   CaptureMark // capture_index
   GetMark
-} derive(Debug, Show)
+} derive(Show)
 
 fn to_bytecode(self : OpCode) -> Int {
   match self {

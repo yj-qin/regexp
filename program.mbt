@@ -3,7 +3,7 @@ priv struct Program {
   classes : Array[CharClass]
   capture_num : Int
   capture_name_mapping : Map[String, Int]
-} derive(Show)
+}
 
 fn op_code(self : Program, pos : Int) -> OpCode {
   OpCode::from_bytecode(self.bytecodes[pos])
@@ -13,64 +13,66 @@ fn operand(self : Program, pos : Int) -> Int {
   self.bytecodes[pos]
 }
 
-fn debug_write(self : Program, buf : Buffer) -> Unit {
+impl Show for Program with output(self, logger) -> Unit {
   let mut pos = 0
   while pos < self.bytecodes.length() {
-    let (str, size) = self.debug_op(pos)
-    buf.write_string(str)
-    buf.write_char('\n')
+    let size = self.output_op(pos, logger)
+    logger.write_char('\n')
     pos += size
   }
 }
 
-fn debug_op(self : Program, pos : Int) -> (String, Int) {
+fn to_string(self : Program) -> String {
+  Show::to_string(self)
+}
+
+fn output_op(self : Program, pos : Int, logger : Logger) -> Int {
   let mut size = 0
-  let buf = Buffer::new()
-  buf.write_string("\(pos) ")
+  logger.write_string("\(pos) ")
   let opcode = OpCode::from_bytecode(self.bytecodes[pos])
   match opcode {
     Nop | Stop | BeginOfInput | EndOfInput | NullMark | SetMark | GetMark => {
-      buf.write_string("\(opcode)")
+      logger.write_string("\(opcode)")
       size = 1
     }
     Goto
     | BranchLazy
     | BranchMark | BranchMarkLazy | NullCount | SetCount | CaptureMark => {
       let opd = self.bytecodes[pos + 1]
-      buf.write_string("\(opcode) \(opd)")
+      logger.write_string("\(opcode) \(opd)")
       size = 2
     }
     Single | NotSingle => {
       let char = self.bytecodes[pos + 1]
-      buf.write_string("\(opcode) \(char)")
+      logger.write_string("\(opcode) \(char)")
       size = 2
     }
     Class => {
       let class_idx = self.bytecodes[pos + 1]
       let class = self.classes[class_idx]
-      buf.write_string("\(opcode) \(class)")
+      logger.write_string("\(opcode) \(class)")
       size = 2
     }
     SingleRepeat
     | NotSingleRepeat | SingleLoop | NotSingleLoop | SingleLazy | NotSingleLazy => {
       let char = self.bytecodes[pos + 1]
       let opd2 = self.bytecodes[pos + 2]
-      buf.write_string("\(opcode) \(char) \(opd2)")
+      logger.write_string("\(opcode) \(char) \(opd2)")
       size = 3
     }
     BranchCount | BranchCountLazy => {
       let opd1 = self.bytecodes[pos + 1]
       let opd2 = self.bytecodes[pos + 2]
-      buf.write_string("\(opcode) \(opd1) \(opd2)")
+      logger.write_string("\(opcode) \(opd1) \(opd2)")
       size = 3
     }
     ClassRepeat | ClassLoop | ClassLazy => {
       let class_idx = self.bytecodes[pos + 1]
       let class = self.classes[class_idx]
       let opd2 = self.bytecodes[pos + 2]
-      buf.write_string("\(opcode) \(class) \(opd2)")
+      logger.write_string("\(opcode) \(class) \(opd2)")
       size = 3
     }
   }
-  (buf.to_string(), size)
+  size
 }

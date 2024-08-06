@@ -2,7 +2,7 @@ priv enum RunningStatus {
   Normal
   Backtracking
   BacktrackingBranch
-} derive(Debug, Show, Eq)
+} derive(Show, Eq)
 
 priv struct Interpreter {
   prog : Program
@@ -32,7 +32,7 @@ fn Interpreter::new(prog : Program) -> Interpreter {
     track_stack: [],
     run_stack: [],
     capture_stack: [],
-    captures: FixedArray::new(prog.capture_num, fn() { None }),
+    captures: FixedArray::makei(prog.capture_num, fn(_i) { None }),
   }
 }
 
@@ -144,7 +144,7 @@ fn scan(self : Interpreter, text : String, start : Int, end : Int) -> Match {
 fn try_match(self : Interpreter, text : String) -> Bool {
   self.op_pos = 0
   self.op_code = self.prog.op_code(self.op_pos)
-  for ; ; {
+  for {
     let cur_opcode = self.op_code
     let cur_status = self.status
     if self.status == Backtracking {
@@ -287,7 +287,7 @@ fn try_match(self : Interpreter, text : String) -> Bool {
         let mark = self.run_pop()
         let count = self.run_pop()
         let matched = self.text_pos - mark
-        if count >= self.operand(1) || matched == 0 && count >= 0 {
+        if count >= self.operand(1) || (matched == 0 && count >= 0) {
           // Max loops or empty match, go straight
           self.op_push(branch=true)
           self.track_push(count)
@@ -590,8 +590,8 @@ fn try_match(self : Interpreter, text : String) -> Bool {
 
 fn debug_state(self : Interpreter) -> String {
   let buf = Buffer::new()
-  let (op, _) = self.prog.debug_op(self.op_pos)
-  buf.write_string(op + "\n")
+  let _ = self.prog.output_op(self.op_pos, buf)
+  buf.write_char('\n')
   buf.write_string("text_pos: " + self.text_pos.to_string() + "\n")
   buf.write_string("op_stack: " + self.op_stack.to_string() + "\n")
   buf.write_string("track_stack: " + self.track_stack.to_string() + "\n")
