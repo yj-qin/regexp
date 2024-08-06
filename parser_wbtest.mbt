@@ -217,8 +217,14 @@ test "should parse non-greedy" {
 }
 
 test "throws on invalid loop" {
-  inspect!(test_parse?("a{,1}"), content="Err(moonbitlang/core/builtin.Failure)")
-  inspect!(test_parse?("a{0,1"), content="Err(moonbitlang/core/builtin.Failure)")
+  inspect!(
+    test_parse?("a{,1}"),
+    content="Err(moonbitlang/core/builtin.Failure)",
+  )
+  inspect!(
+    test_parse?("a{0,1"),
+    content="Err(moonbitlang/core/builtin.Failure)",
+  )
   inspect!(test_parse?("a{}"), content="Err(moonbitlang/core/builtin.Failure)")
 }
 // #endregion
@@ -450,7 +456,10 @@ test "throws on empty group" {
 }
 
 test "throws on empty group name" {
-  inspect!(test_parse?("(?<>abc)"), content="Err(moonbitlang/core/builtin.Failure)")
+  inspect!(
+    test_parse?("(?<>abc)"),
+    content="Err(moonbitlang/core/builtin.Failure)",
+  )
 }
 // #endregion
 
