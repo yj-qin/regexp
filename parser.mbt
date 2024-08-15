@@ -163,9 +163,9 @@ fn parse_concat(self : Parser, in_group : Bool) -> AstNode! {
   } else {
     let concat_node = AstNode::new(Concatenate)
     concat_node.add_child(node)
-    while self.more() && self.peek_is('|').not() && (in_group && self.peek_is(
-            ')',
-          )).not() {
+    while self.more() &&
+          self.peek_is('|').not() &&
+          (in_group && self.peek_is(')')).not() {
       concat_node.add_child(self.parse_node!(in_group))
     }
     concat_node
