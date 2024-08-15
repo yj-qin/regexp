@@ -12,6 +12,23 @@ impl Match {
   to_string(Self) -> String
 }
 
+pub type! ParseError {
+  InternalParserError
+  UnmatchedGroupBegin(Int)
+  UnmatchedGroupEnd(Int)
+  UnmatchedGroupName(Int)
+  EmptyGroupName(Int)
+  EmptyGroup(Int)
+  UnmatchedCharClassEnd(Int)
+  UnspecifiedLoopTarget(Int)
+  InvalidLoop(Int)
+  LoopCountOutOfRange(Int)
+  LoopMaxCountSmallerThanMinCount(Int)
+  EndPatternAtEscape(Int)
+  ClassMissingBracket(Int)
+  GroupMissingParen(Int)
+}
+
 type RegExp
 impl RegExp {
   matches(Self, String, ~start : Int = .., ~end : Int = ..) -> Match
