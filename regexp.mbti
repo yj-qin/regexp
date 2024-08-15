@@ -18,6 +18,8 @@ impl RegExp {
   pattern(Self) -> String
 }
 
+// Type aliases
+
 // Traits
 
 // Extension Methods

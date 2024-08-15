@@ -219,13 +219,16 @@ test "should parse non-greedy" {
 test "throws on invalid loop" {
   inspect!(
     test_parse?("a{,1}"),
-    content="Err(moonbitlang/core/builtin.Failure)",
+    content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
   inspect!(
     test_parse?("a{0,1"),
-    content="Err(moonbitlang/core/builtin.Failure)",
+    content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
-  inspect!(test_parse?("a{}"), content="Err(moonbitlang/core/builtin.Failure)")
+  inspect!(
+    test_parse?("a{}"),
+    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  )
 }
 // #endregion
 
@@ -300,7 +303,10 @@ test "should parse negated class" {
 }
 
 test "throws on unclosed class" {
-  inspect!(test_parse?("[abc"), content="Err(moonbitlang/core/builtin.Failure)")
+  inspect!(
+    test_parse?("[abc"),
+    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  )
 }
 // #endregion
 
@@ -448,17 +454,23 @@ test "should parse named group" {
 }
 
 test "throws on unclosed group" {
-  inspect!(test_parse?("(abc"), content="Err(moonbitlang/core/builtin.Failure)")
+  inspect!(
+    test_parse?("(abc"),
+    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  )
 }
 
 test "throws on empty group" {
-  inspect!(test_parse?("()"), content="Err(moonbitlang/core/builtin.Failure)")
+  inspect!(
+    test_parse?("()"),
+    content="Err(moonbitlang/core/builtin.Failure.Failure)",
+  )
 }
 
 test "throws on empty group name" {
   inspect!(
     test_parse?("(?<>abc)"),
-    content="Err(moonbitlang/core/builtin.Failure)",
+    content="Err(moonbitlang/core/builtin.Failure.Failure)",
   )
 }
 // #endregion

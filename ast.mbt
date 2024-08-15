@@ -22,8 +22,8 @@ priv enum AstNodeInternal {
 fn to_string(self : AstNodeInternal) -> String {
   fn range_str(min : Int, max : Int?) {
     match max {
-      Some(max) => if min == max { "{\(min)} " } else { "{\(min),\(max)} " }
-      None => "{\(min),} "
+      Some(max) => if min == max { "{\{min}} " } else { "{\{min},\{max}} " }
+      None => "{\{min},} "
     }
   }
 
@@ -41,18 +41,27 @@ fn to_string(self : AstNodeInternal) -> String {
     NotSingle(~char) => "NotSingle " + char.to_int().to_string()
     Class(~class) => "Class " + class.to_string()
     SingleLoop(~char, ~min, ~max, ~greedy) =>
-      "SingleLoop " + greedy_str(greedy) + range_str(min, max) + char.to_int().to_string()
+      "SingleLoop " +
+      greedy_str(greedy) +
+      range_str(min, max) +
+      char.to_int().to_string()
     NotSingleLoop(~char, ~min, ~max, ~greedy) =>
-      "NotSingleLoop " + greedy_str(greedy) + range_str(min, max) + char.to_int().to_string()
+      "NotSingleLoop " +
+      greedy_str(greedy) +
+      range_str(min, max) +
+      char.to_int().to_string()
     ClassLoop(~class, ~min, ~max, ~greedy) =>
-      "ClassLoop " + greedy_str(greedy) + range_str(min, max) + class.to_string()
+      "ClassLoop " +
+      greedy_str(greedy) +
+      range_str(min, max) +
+      class.to_string()
     BeginOfInput => "BeginOfLine"
     EndOfInput => "EndOfLine"
     Alternate => "Alternate"
     Concatenate => "Concatenate"
     Loop(~min, ~max, ~greedy) =>
       "Loop " + greedy_str(greedy) + range_str(min, max)
-    Capture(~index) => "Capture \(index)"
+    Capture(~index) => "Capture \{index}"
     Group => "Group"
   }
 }
