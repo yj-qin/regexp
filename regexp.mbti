@@ -28,6 +28,9 @@ pub type! ParseError {
   ClassMissingBracket(Int)
   GroupMissingParen(Int)
 }
+impl ParseError {
+  op_equal(Self, Self) -> Bool
+}
 
 type RegExp
 impl RegExp {
