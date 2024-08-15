@@ -392,10 +392,8 @@ fn try_match(self : Interpreter, text : String) -> Bool {
           continue
         }
       (Class, _) =>
-        if self.chars_remain() >= 1 && self.char_in_class(
-          self.operand(0),
-          self.next_char(text),
-        ) {
+        if self.chars_remain() >= 1 &&
+          self.char_in_class(self.operand(0), self.next_char(text)) {
           self.advance(2)
           continue
         }
