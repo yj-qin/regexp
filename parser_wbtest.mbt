@@ -1,4 +1,4 @@
-fn test_parse(s : String) -> Ast! {
+fn test_parse(s : String) -> Ast!ParseError {
   Parser::new(s).parse!()
 }
 
@@ -217,18 +217,9 @@ test "should parse non-greedy" {
 }
 
 test "throws on invalid loop" {
-  inspect!(
-    test_parse?("a{,1}"),
-    content="Err(yj-qin/regexp.ParseError.InvalidLoop)",
-  )
-  inspect!(
-    test_parse?("a{0,1"),
-    content="Err(yj-qin/regexp.ParseError.InvalidLoop)",
-  )
-  inspect!(
-    test_parse?("a{}"),
-    content="Err(yj-qin/regexp.ParseError.InvalidLoop)",
-  )
+  inspect!(test_parse?("a{,1}"), content="Err(InvalidLoop(pos=2))")
+  inspect!(test_parse?("a{0,1"), content="Err(InvalidLoop(pos=5))")
+  inspect!(test_parse?("a{}"), content="Err(InvalidLoop(pos=2))")
 }
 // #endregion
 
@@ -303,10 +294,7 @@ test "should parse negated class" {
 }
 
 test "throws on unclosed class" {
-  inspect!(
-    test_parse?("[abc"),
-    content="Err(yj-qin/regexp.ParseError.ClassMissingBracket)",
-  )
+  inspect!(test_parse?("[abc"), content="Err(ClassMissingBracket(pos=4))")
 }
 // #endregion
 
@@ -454,24 +442,15 @@ test "should parse named group" {
 }
 
 test "throws on unclosed group" {
-  inspect!(
-    test_parse?("(abc"),
-    content="Err(yj-qin/regexp.ParseError.GroupMissingParen)",
-  )
+  inspect!(test_parse?("(abc"), content="Err(GroupMissingParen(pos=4))")
 }
 
 test "throws on empty group" {
-  inspect!(
-    test_parse?("()"),
-    content="Err(yj-qin/regexp.ParseError.EmptyGroup)",
-  )
+  inspect!(test_parse?("()"), content="Err(EmptyGroup(pos=1))")
 }
 
 test "throws on empty group name" {
-  inspect!(
-    test_parse?("(?<>abc)"),
-    content="Err(yj-qin/regexp.ParseError.EmptyGroupName)",
-  )
+  inspect!(test_parse?("(?<>abc)"), content="Err(EmptyGroupName(pos=4))")
 }
 // #endregion
 
