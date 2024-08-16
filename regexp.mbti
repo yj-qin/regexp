@@ -30,6 +30,7 @@ pub type! ParseError {
 }
 impl ParseError {
   op_equal(Self, Self) -> Bool
+  to_string(Self) -> String
 }
 
 type RegExp
@@ -44,4 +45,6 @@ impl RegExp {
 
 // Extension Methods
 impl Show for Match
+
+impl Show for ParseError
 
