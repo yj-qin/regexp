@@ -16,7 +16,7 @@ priv struct Interpreter {
   track_stack : Array[Int]
   run_stack : Array[Int]
   capture_stack : Array[Int]
-  captures : FixedArray[(Int, Int)?]
+  captures : Array[(Int, Int)?]
 }
 
 fn Interpreter::new(prog : Program) -> Interpreter {
@@ -32,7 +32,7 @@ fn Interpreter::new(prog : Program) -> Interpreter {
     track_stack: [],
     run_stack: [],
     capture_stack: [],
-    captures: FixedArray::makei(prog.capture_num, fn(_i) { None }),
+    captures: Array::makei(prog.capture_num, fn(_i) { None }),
   }
 }
 
@@ -115,7 +115,12 @@ fn char_in_class(self : Interpreter, class_idx : Int, char : Int) -> Bool {
   class.contains(char)
 }
 
-fn scan(self : Interpreter, text : String, start : Int, end : Int) -> Match {
+fn scan(
+  self : Interpreter,
+  text : String,
+  start : Int,
+  end : Int
+) -> MatchResult {
   self.text_start = start
   self.text_end = end
   self.text_pos = self.text_start
@@ -125,20 +130,21 @@ fn scan(self : Interpreter, text : String, start : Int, end : Int) -> Match {
     }
     self.text_pos += 1
   }
-  {
-    success: self.captures[0] != None,
-    captures: self.captures.map(
-      fn(r) {
-        if r == None {
-          ""
-        } else {
-          let (start, end) = r.unwrap()
-          text.substring(~start, ~end)
-        }
-      },
-    ),
-    capture_name_mapping: self.prog.capture_name_mapping,
+  let captures = self.captures.map(
+    fn(r) {
+      if r == None {
+        ""
+      } else {
+        let (start, end) = r.unwrap()
+        text.substring(~start, ~end)
+      }
+    },
+  )
+  let named_captures = {  }
+  for k, v in self.prog.capture_name_mapping {
+    named_captures[k] = captures[v]
   }
+  { success: self.captures[0] != None, captures, named_captures }
 }
 
 fn try_match(self : Interpreter, text : String) -> Bool {

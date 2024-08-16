@@ -4,10 +4,10 @@ package yj-qin/regexp
 fn compile(String) -> RegExp!
 
 // Types and methods
-type Match
-impl Match {
-  capture(Self, Int) -> String?
-  named(Self, String) -> String?
+type MatchResult
+impl MatchResult {
+  captures(Self) -> Array[String]
+  named_captures(Self) -> Map[String, String]
   success(Self) -> Bool
   to_string(Self) -> String
 }
@@ -35,7 +35,7 @@ impl ParseError {
 
 type RegExp
 impl RegExp {
-  matches(Self, String, ~start : Int = .., ~end : Int = ..) -> Match
+  matches(Self, String, ~start : Int = .., ~end : Int = ..) -> MatchResult
   pattern(Self) -> String
 }
 
@@ -44,7 +44,7 @@ impl RegExp {
 // Traits
 
 // Extension Methods
-impl Show for Match
+impl Show for MatchResult
 
 impl Show for ParseError
 

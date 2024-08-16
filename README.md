@@ -10,11 +10,8 @@ The design of the bytecode and interpreter was heavily inspired by the .NET regu
 let regexp = @regexp.compile("^(?<addr>[a-zA-Z0-9._%+-]+)@(?<host>[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$")?
 let match_result = regexp.matches("12345@test.com")
 println(match_result.success()) // true
-println(match_result.capture(0)) // 12345@test.com
-println(match_result.capture(1)) // 12345
-println(match_result.capture(2)) // test.com
-println(match_result.named("addr")) // 12345
-println(match_result.named("host")) // test.com
+println(match_result.captures()) // ["12345@test.com", "12345", "test.com"]
+println(match_result.named_captures()) // {"addr": "12345", "host": "test.com"}
 ```
 
 ## Features
