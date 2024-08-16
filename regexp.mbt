@@ -22,6 +22,6 @@ pub fn matches(
   text : String,
   ~start : Int = 0,
   ~end : Int = text.length()
-) -> Match {
+) -> MatchResult {
   Interpreter::new(self.prog).scan(text, start, end)
 }
