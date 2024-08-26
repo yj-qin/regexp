@@ -124,7 +124,7 @@ fn emit_fragment(
       if min > 1 || max.is_empty().not() {
         let opcode : OpCode = if greedy { BranchCount } else { BranchCountLazy }
         let count = if max.is_empty() {
-          Int::max_value()
+          @int.max_value
         } else {
           max.unwrap() - min
         }
@@ -155,7 +155,7 @@ fn emit_fragment(
       let opcode : OpCode = if greedy { SingleLoop } else { SingleLazy }
       match max {
         Some(max) => if max != min { self.emit_2(opcode, opd, max - min) }
-        None => self.emit_2(opcode, opd, Int::max_value())
+        None => self.emit_2(opcode, opd, @int.max_value)
       }
     }
     (NotSingleLoop(~char, ~min, ~max, ~greedy), _) => {
@@ -166,7 +166,7 @@ fn emit_fragment(
       let opcode : OpCode = if greedy { NotSingleLoop } else { NotSingleLazy }
       match max {
         Some(max) => if max != min { self.emit_2(opcode, opd, max - min) }
-        None => self.emit_2(opcode, opd, Int::max_value())
+        None => self.emit_2(opcode, opd, @int.max_value)
       }
     }
     (ClassLoop(~class, ~min, ~max, ~greedy), _) => {
@@ -178,7 +178,7 @@ fn emit_fragment(
       let opcode : OpCode = if greedy { ClassLoop } else { ClassLazy }
       match max {
         Some(max) => if max != min { self.emit_2(opcode, idx, max - min) }
-        None => self.emit_2(opcode, idx, Int::max_value())
+        None => self.emit_2(opcode, idx, @int.max_value)
       }
     }
     (BeginOfInput, _) => self.emit_0(BeginOfInput)
