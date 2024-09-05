@@ -69,7 +69,7 @@ fn capture(self : Interpreter, idx : Int, start : Int, end : Int) -> Unit {
 }
 
 fn uncapture(self : Interpreter) -> Unit {
-  let idx = self.capture_stack.pop_exn()
+  let idx = self.capture_stack.unsafe_pop()
   self.captures[idx] = None
 }
 
@@ -78,7 +78,7 @@ fn op_push(self : Interpreter, ~branch : Bool = false) -> Unit {
 }
 
 fn op_pop(self : Interpreter) -> Int {
-  self.op_stack.pop_exn()
+  self.op_stack.unsafe_pop()
 }
 
 fn track_push(self : Interpreter, arg : Int) -> Unit {
@@ -86,7 +86,7 @@ fn track_push(self : Interpreter, arg : Int) -> Unit {
 }
 
 fn track_pop(self : Interpreter) -> Int {
-  self.track_stack.pop_exn()
+  self.track_stack.unsafe_pop()
 }
 
 fn run_push(self : Interpreter, arg : Int) -> Unit {
@@ -94,7 +94,7 @@ fn run_push(self : Interpreter, arg : Int) -> Unit {
 }
 
 fn run_pop(self : Interpreter) -> Int {
-  self.run_stack.pop_exn()
+  self.run_stack.unsafe_pop()
 }
 
 fn chars_remain(self : Interpreter) -> Int {

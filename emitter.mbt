@@ -19,7 +19,7 @@ fn push_stack(self : Emitter, val : Int) -> Unit {
 }
 
 fn pop_stack(self : Emitter) -> Int {
-  self.stack.pop_exn()
+  self.stack.unsafe_pop()
 }
 
 fn cur_pos(self : Emitter) -> Int {

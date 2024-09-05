@@ -114,7 +114,7 @@ fn to_string(self : AstNode) -> String {
       if stack.is_empty() {
         break
       }
-      cur_child = stack.pop_exn()
+      cur_child = stack.unsafe_pop()
       cur_node = match cur_node.parent {
         Some(node) => node
         None => break
