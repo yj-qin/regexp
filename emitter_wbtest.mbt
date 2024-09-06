@@ -176,7 +176,7 @@ test "should emit class" {
     content=
       #|0 BranchLazy 7
       #|2 SetMark
-      #|3 Class [abc]
+      #|3 Class [97,98,99]
       #|5 CaptureMark 0
       #|7 Stop
       #|
@@ -187,7 +187,7 @@ test "should emit class" {
     content=
       #|0 BranchLazy 7
       #|2 SetMark
-      #|3 Class [^abc]
+      #|3 Class [^97,98,99]
       #|5 CaptureMark 0
       #|7 Stop
       #|
@@ -198,7 +198,7 @@ test "should emit class" {
     content=
       #|0 BranchLazy 7
       #|2 SetMark
-      #|3 Class [a-zA-Z0-9]
+      #|3 Class [97-122,65-90,48-57]
       #|5 CaptureMark 0
       #|7 Stop
       #|
@@ -304,16 +304,16 @@ test "should emit common pattern" {
       #|2 SetMark
       #|3 BeginOfInput
       #|4 SetMark
-      #|5 ClassRepeat [a-zA-Z0-9._%+-] 1
-      #|8 ClassLoop [a-zA-Z0-9._%+-] 2147483647
+      #|5 ClassRepeat [97-122,65-90,48-57,46,95,37,43,45] 1
+      #|8 ClassLoop [97-122,65-90,48-57,46,95,37,43,45] 2147483647
       #|11 CaptureMark 1
       #|13 Single 64
       #|15 SetMark
-      #|16 ClassRepeat [a-zA-Z0-9.-] 1
-      #|19 ClassLoop [a-zA-Z0-9.-] 2147483647
+      #|16 ClassRepeat [97-122,65-90,48-57,46,45] 1
+      #|19 ClassLoop [97-122,65-90,48-57,46,45] 2147483647
       #|22 Single 46
-      #|24 ClassRepeat [a-zA-Z] 2
-      #|27 ClassLoop [a-zA-Z] 2147483647
+      #|24 ClassRepeat [97-122,65-90] 2
+      #|27 ClassLoop [97-122,65-90] 2147483647
       #|30 CaptureMark 2
       #|32 EndOfInput
       #|33 CaptureMark 0

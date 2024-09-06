@@ -32,6 +32,154 @@ test "should parse any char" {
     ,
   )
 }
+
+test "should parse escape" {
+  inspect!(
+    test_parse!("\\s"),
+    content=
+      #|
+      #|Number of captures: 1
+      #|Capture name mapping: {}
+      #|Ast:
+      #|Capture 0
+      #|  Class [\s]
+      #|
+    ,
+  )
+  inspect!(
+    test_parse!("\\S"),
+    content=
+      #|
+      #|Number of captures: 1
+      #|Capture name mapping: {}
+      #|Ast:
+      #|Capture 0
+      #|  Class [\S]
+      #|
+    ,
+  )
+  inspect!(
+    test_parse!("\\d"),
+    content=
+      #|
+      #|Number of captures: 1
+      #|Capture name mapping: {}
+      #|Ast:
+      #|Capture 0
+      #|  Class [\d]
+      #|
+    ,
+  )
+  inspect!(
+    test_parse!("\\D"),
+    content=
+      #|
+      #|Number of captures: 1
+      #|Capture name mapping: {}
+      #|Ast:
+      #|Capture 0
+      #|  Class [\D]
+      #|
+    ,
+  )
+  inspect!(
+    test_parse!("\\w"),
+    content=
+      #|
+      #|Number of captures: 1
+      #|Capture name mapping: {}
+      #|Ast:
+      #|Capture 0
+      #|  Class [\w]
+      #|
+    ,
+  )
+  inspect!(
+    test_parse!("\\W"),
+    content=
+      #|
+      #|Number of captures: 1
+      #|Capture name mapping: {}
+      #|Ast:
+      #|Capture 0
+      #|  Class [\W]
+      #|
+    ,
+  )
+  inspect!(
+    test_parse!("\\n"),
+    content=
+      #|
+      #|Number of captures: 1
+      #|Capture name mapping: {}
+      #|Ast:
+      #|Capture 0
+      #|  Single 10
+      #|
+    ,
+  )
+  inspect!(
+    test_parse!("\\r"),
+    content=
+      #|
+      #|Number of captures: 1
+      #|Capture name mapping: {}
+      #|Ast:
+      #|Capture 0
+      #|  Single 13
+      #|
+    ,
+  )
+  inspect!(
+    test_parse!("\\f"),
+    content=
+      #|
+      #|Number of captures: 1
+      #|Capture name mapping: {}
+      #|Ast:
+      #|Capture 0
+      #|  Single 12
+      #|
+    ,
+  )
+  inspect!(
+    test_parse!("\\v"),
+    content=
+      #|
+      #|Number of captures: 1
+      #|Capture name mapping: {}
+      #|Ast:
+      #|Capture 0
+      #|  Single 11
+      #|
+    ,
+  )
+  inspect!(
+    test_parse!("\\t"),
+    content=
+      #|
+      #|Number of captures: 1
+      #|Capture name mapping: {}
+      #|Ast:
+      #|Capture 0
+      #|  Single 9
+      #|
+    ,
+  )
+  inspect!(
+    test_parse!("\\*"),
+    content=
+      #|
+      #|Number of captures: 1
+      #|Capture name mapping: {}
+      #|Ast:
+      #|Capture 0
+      #|  Single 42
+      #|
+    ,
+  )
+}
+
 // #endregion
 
 // #region concat
@@ -233,7 +381,7 @@ test "should parse class" {
       #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
-      #|  Class [abc]
+      #|  Class [97,98,99]
       #|
     ,
   )
@@ -248,7 +396,7 @@ test "should parse range class" {
       #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
-      #|  Class [a-z]
+      #|  Class [97-122]
       #|
     ,
   )
@@ -260,7 +408,7 @@ test "should parse range class" {
       #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
-      #|  Class [a-zA-Z]
+      #|  Class [97-122,65-90]
       #|
     ,
   )
@@ -272,7 +420,7 @@ test "should parse range class" {
       #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
-      #|  Class [0-9]
+      #|  Class [48-57]
       #|
     ,
   )
@@ -287,7 +435,46 @@ test "should parse negated class" {
       #|Capture name mapping: {}
       #|Ast:
       #|Capture 0
-      #|  Class [^abc]
+      #|  Class [^97,98,99]
+      #|
+    ,
+  )
+}
+
+test "should parse escape class" {
+  inspect!(
+    test_parse!("[A-Za-z\\s]"),
+    content=
+      #|
+      #|Number of captures: 1
+      #|Capture name mapping: {}
+      #|Ast:
+      #|Capture 0
+      #|  Class [65-90,97-122\s]
+      #|
+    ,
+  )
+  inspect!(
+    test_parse!("[\\D1-3]"),
+    content=
+      #|
+      #|Number of captures: 1
+      #|Capture name mapping: {}
+      #|Ast:
+      #|Capture 0
+      #|  Class [49-51\D]
+      #|
+    ,
+  )
+  inspect!(
+    test_parse!("[\\f\\v]"),
+    content=
+      #|
+      #|Number of captures: 1
+      #|Capture name mapping: {}
+      #|Ast:
+      #|Capture 0
+      #|  Class [12,11]
       #|
     ,
   )
@@ -520,13 +707,13 @@ test "should parse common regexp" {
       #|  Concatenate
       #|    BeginOfLine
       #|    Capture 1
-      #|      ClassLoop Greedy {1,} [a-zA-Z0-9._%+-]
+      #|      ClassLoop Greedy {1,} [97-122,65-90,48-57,46,95,37,43,45]
       #|    Single 64
       #|    Capture 2
       #|      Concatenate
-      #|        ClassLoop Greedy {1,} [a-zA-Z0-9.-]
+      #|        ClassLoop Greedy {1,} [97-122,65-90,48-57,46,45]
       #|        Single 46
-      #|        ClassLoop Greedy {2,} [a-zA-Z]
+      #|        ClassLoop Greedy {2,} [97-122,65-90]
       #|    EndOfLine
       #|
     ,

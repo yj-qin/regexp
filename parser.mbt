@@ -343,40 +343,52 @@ fn parse_class(self : Parser) -> AstNode!ParseError {
   } else {
     false
   }
-  let ranges : Array[Int] = []
   let mut first = true
+  let char_class = CharClass::new(~neg)
   // Allow ']' and '-' as first char in class
   while self.more() && (self.peek_is(']').not() || first) {
-    if self.peek_is(']') && first {
-      ranges.push(']'.to_int())
-      ranges.push(']'.to_int())
-      self.advance(1) // ']'
-    }
-    if self.peek_is('-') && first {
-      ranges.push('-'.to_int())
-      ranges.push('-'.to_int())
-      self.advance(1) // '-'
+    if (self.peek_is(']') || self.peek_is('-')) && first {
+      char_class.add_single(self.peek())
+      self.advance(1)
     }
     first = false
-    let low = self.parse_char_class_char!()
-    let mut high = low
-    if self.more() && self.peek_is('-') {
-      self.advance(1) // '-'
-      if self.more() && self.peek_is(']') {
-        // '-' is the last char
-        self.rewind(1)
-      } else {
-        high = self.parse_char_class_char!()
+    if self.peek_is('\\') {
+      self.advance(1)
+      match self.peek() {
+        'd' => char_class.add_category(Digit)
+        'D' => char_class.add_category(NotDigit)
+        's' => char_class.add_category(Space)
+        'S' => char_class.add_category(NotSpace)
+        'w' => char_class.add_category(Word)
+        'W' => char_class.add_category(NotWord)
+        't' => char_class.add_single('\t')
+        'r' => char_class.add_single('\r')
+        'n' => char_class.add_single('\n')
+        'v' => char_class.add_single('\u000B')
+        'f' => char_class.add_single('\u000C')
+        _ as c => char_class.add_single(c)
       }
+      self.advance(1)
+    } else {
+      let low = self.parse_char_class_char!()
+      let mut high = low
+      if self.more() && self.peek_is('-') {
+        self.advance(1) // '-'
+        if self.more() && self.peek_is(']') {
+          // '-' is the last char
+          self.rewind(1)
+        } else {
+          high = self.parse_char_class_char!()
+        }
+      }
+      char_class.add_range(low, high)
     }
-    ranges.push(low.to_int())
-    ranges.push(high.to_int())
   }
   if self.more().not() || self.peek_is(']').not() {
     raise ClassMissingBracket(pos=self.pos)
   } else {
     self.advance(1) // ']'
-    AstNode::new(Class(class=CharClass::new(ranges, neg)))
+    AstNode::new(Class(class=char_class))
   }
 }
 
@@ -396,10 +408,20 @@ fn parse_escape(self : Parser) -> AstNode!ParseError {
   if self.more().not() {
     raise EndPatternAtEscape(pos=self.pos)
   }
-  match self.peek() {
-    _ as char => {
-      self.advance(1)
-      AstNode::new(Single(~char))
-    }
+  let node : AstNodeInternal = match self.peek() {
+    'd' => Class(class=CharClass::new()..add_category(Digit))
+    'D' => Class(class=CharClass::new()..add_category(NotDigit))
+    's' => Class(class=CharClass::new()..add_category(Space))
+    'S' => Class(class=CharClass::new()..add_category(NotSpace))
+    'w' => Class(class=CharClass::new()..add_category(Word))
+    'W' => Class(class=CharClass::new()..add_category(NotWord))
+    't' => Single(char='\t')
+    'r' => Single(char='\r')
+    'n' => Single(char='\n')
+    'v' => Single(char='\u000B')
+    'f' => Single(char='\u000C')
+    _ as char => Single(~char)
   }
+  self.advance(1)
+  AstNode::new(node)
 }

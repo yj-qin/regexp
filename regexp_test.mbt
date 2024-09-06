@@ -13,6 +13,111 @@ test "should match single" {
   )
 }
 
+test "should match escape" {
+  inspect!(
+    @regexp.compile!("\\d").matches("123"),
+    content=
+      #|{success: true, captures: ["1"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("\\d").matches("abc"),
+    content=
+      #|{success: false, captures: [""], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("\\D").matches("abc"),
+    content=
+      #|{success: true, captures: ["a"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("\\D").matches("123"),
+    content=
+      #|{success: false, captures: [""], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("\\w").matches("abc"),
+    content=
+      #|{success: true, captures: ["a"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("\\w").matches(" "),
+    content=
+      #|{success: false, captures: [""], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("\\W").matches(" "),
+    content=
+      #|{success: true, captures: [" "], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("\\W").matches("abc"),
+    content=
+      #|{success: false, captures: [""], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("\\s").matches(" "),
+    content=
+      #|{success: true, captures: [" "], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("\\s").matches("123"),
+    content=
+      #|{success: false, captures: [""], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("\\S").matches("123"),
+    content=
+      #|{success: true, captures: ["1"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("\\S").matches(" "),
+    content=
+      #|{success: false, captures: [""], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("\\n").matches("a\nb"),
+    content=
+      #|{success: true, captures: ["\n"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("\\r").matches("a\rb"),
+    content=
+      #|{success: true, captures: ["\r"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("\\t").matches("a\tb"),
+    content=
+      #|{success: true, captures: ["\t"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("\\v").matches("a\u000Bb"),
+    content=
+      #|{success: true, captures: ["\x0b"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("\\f").matches("a\u000Cb"),
+    content=
+      #|{success: true, captures: ["\x0c"], named_captures: {}}
+    ,
+  )
+}
+
 test "should match concat" {
   inspect!(
     @regexp.compile!("cde").matches("abcdef"),
@@ -90,6 +195,96 @@ test "should match class" {
     @regexp.compile!("[a-zA-Z]").matches("0"),
     content=
       #|{success: false, captures: [""], named_captures: {}}
+    ,
+  )
+}
+
+test "should match escape class" {
+  inspect!(
+    @regexp.compile!("[\\d]+").matches("abc123"),
+    content=
+      #|{success: true, captures: ["123"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("[\\D]+").matches("abc123"),
+    content=
+      #|{success: true, captures: ["abc"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("[\\s]+").matches("123 abc"),
+    content=
+      #|{success: true, captures: [" "], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("[\\S]+").matches("123 abc"),
+    content=
+      #|{success: true, captures: ["123"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("[\\w]+").matches("123abc"),
+    content=
+      #|{success: true, captures: ["123abc"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("[\\W]+").matches("123abc"),
+    content=
+      #|{success: false, captures: [""], named_captures: {}}
+    ,
+  )
+}
+
+test "should match class repeat" {
+  inspect!(
+    @regexp.compile!("[a-z]{3}").matches("abc"),
+    content=
+      #|{success: true, captures: ["abc"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("[a-z]{3}").matches("ab"),
+    content=
+      #|{success: false, captures: [""], named_captures: {}}
+    ,
+  )
+}
+
+test "should match class loop" {
+  inspect!(
+    @regexp.compile!("[a-z]*").matches("abc"),
+    content=
+      #|{success: true, captures: ["abc"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("[a-z]*").matches(""),
+    content=
+      #|{success: true, captures: [""], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("[a-z]*").matches("123"),
+    content=
+      #|{success: true, captures: [""], named_captures: {}}
+    ,
+  )
+}
+
+test "should match class lazy loop" {
+  inspect!(
+    @regexp.compile!("[a-z]+?").matches("abc"),
+    content=
+      #|{success: true, captures: ["a"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("[a-z]*?").matches("abc"),
+    content=
+      #|{success: true, captures: [""], named_captures: {}}
     ,
   )
 }
@@ -267,7 +462,7 @@ test "should match group" {
   )
 }
 
-test "should match common pattern" {
+test "should match email address" {
   inspect!(
     @regexp.compile!(
       "^(?<addr>[a-zA-Z0-9._%+-]+)@(?<host>[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$",
