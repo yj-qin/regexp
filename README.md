@@ -19,7 +19,7 @@ println(match_result.named_captures()) // {"addr": "12345", "host": "test.com"}
 ### Character classes
 
 - [x] Character range
-- [ ] Perl's Backslash sequences
+- [x] Escapes (e.g. `\d`, `\D`, `\s`, `\S`, `\w`, `\W`)
 
 ### Assertions
 

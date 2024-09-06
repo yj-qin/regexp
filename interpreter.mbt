@@ -124,7 +124,7 @@ fn scan(
   self.text_start = start
   self.text_end = end
   self.text_pos = self.text_start
-  while self.text_pos < text.length() {
+  while self.text_pos <= text.length() {
     if self.try_match(text) {
       break
     }
@@ -440,17 +440,18 @@ fn try_match(self : Interpreter, text : String) -> Bool {
         }
       }
       (ClassRepeat, _) => {
-        let mut matched = false
+        let mut matched = true
         let class_idx = self.operand(0)
         let count = self.operand(1)
-        if self.chars_remain() >= count {
-          let ch = self.operand(0)
+        if self.chars_remain() < count {
+          matched = false
+        } else {
           for i = 0; i < count; i = i + 1 {
-            if self.char_in_class(class_idx, ch) {
+            if self.char_in_class(class_idx, self.next_char(text)).not() {
+              matched = false
+              self.rewind()
               break
             }
-          } else {
-            matched = true
           }
         }
         if matched {
@@ -499,12 +500,11 @@ fn try_match(self : Interpreter, text : String) -> Bool {
         continue
       }
       (ClassLoop, Normal) => {
-        let class = self.prog.classes[self.operand(0)]
         let max_count = self.operand(1)
         let count = @math.minimum(max_count, self.chars_remain())
         let mut i = count
         while i > 0 {
-          if class.contains(self.next_char(text)).not() {
+          if self.char_in_class(self.operand(0), self.next_char(text)).not() {
             self.rewind()
             break
           }
