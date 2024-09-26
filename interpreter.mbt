@@ -140,7 +140,7 @@ fn scan(
       }
     },
   )
-  let named_captures = {  }
+  let named_captures = {}
   for k, v in self.prog.capture_name_mapping {
     named_captures[k] = captures[v]
   }

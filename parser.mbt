@@ -33,7 +33,7 @@ fn Parser::new(pattern : String) -> Parser {
     pos_mark: 0,
     group_index: 0,
     capture_num: 0,
-    capture_name_mapping: {  },
+    capture_name_mapping: {},
   }
 }
 
@@ -106,9 +106,10 @@ fn fetch_unsigned_num(self : Parser) -> Int? {
     return None
   }
   try {
-    return Some(@strconv.parse_int!(num_str))
+    let num = @strconv.parse_int!(num_str)
+    Some(num)
   } catch {
-    _ => return None
+    _ => None
   }
 }
 
