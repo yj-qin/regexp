@@ -73,7 +73,7 @@ fn uncapture(self : Interpreter) -> Unit {
   self.captures[idx] = None
 }
 
-fn op_push(self : Interpreter, ~branch : Bool = false) -> Unit {
+fn op_push(self : Interpreter, branch~ : Bool = false) -> Unit {
   self.op_stack.push(if branch { -self.op_pos } else { self.op_pos })
 }
 
@@ -136,7 +136,7 @@ fn scan(
         ""
       } else {
         let (start, end) = r.unwrap()
-        text.substring(~start, ~end)
+        text.substring(start~, end~)
       }
     },
   )
@@ -593,12 +593,12 @@ fn try_match(self : Interpreter, text : String) -> Bool {
 }
 
 fn debug_state(self : Interpreter) -> String {
-  let buf = Buffer::new()
+  let buf = @buffer.new()
   let _ = self.prog.output_op(self.op_pos, buf)
   buf.write_char('\n')
   buf.write_string("text_pos: " + self.text_pos.to_string() + "\n")
   buf.write_string("op_stack: " + self.op_stack.to_string() + "\n")
   buf.write_string("track_stack: " + self.track_stack.to_string() + "\n")
   buf.write_string("run_stack: " + self.run_stack.to_string() + "\n")
-  buf.to_string()
+  buf.to_unchecked_string()
 }

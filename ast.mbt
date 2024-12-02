@@ -1,21 +1,21 @@
 priv enum AstNodeInternal {
   // Leave nodes of the AST.
   Empty
-  Single(~char : Char)
-  NotSingle(~char : Char)
-  Class(~class : CharClass)
+  Single(char~ : Char)
+  NotSingle(char~ : Char)
+  Class(class~ : CharClass)
   // Multi(~str : String)
-  SingleLoop(~char : Char, ~min : Int, ~max : Int?, ~greedy : Bool)
-  NotSingleLoop(~char : Char, ~min : Int, ~max : Int?, ~greedy : Bool)
-  ClassLoop(~class : CharClass, ~min : Int, ~max : Int?, ~greedy : Bool)
+  SingleLoop(char~ : Char, min~ : Int, max~ : Int?, greedy~ : Bool)
+  NotSingleLoop(char~ : Char, min~ : Int, max~ : Int?, greedy~ : Bool)
+  ClassLoop(class~ : CharClass, min~ : Int, max~ : Int?, greedy~ : Bool)
   // Backreference(~index : Int)
   BeginOfInput
   EndOfInput
   // Branch nodes of the AST that have at least one child.
   Alternate
   Concatenate
-  Loop(~min : Int, ~max : Int?, ~greedy : Bool)
-  Capture(~index : Int)
+  Loop(min~ : Int, max~ : Int?, greedy~ : Bool)
+  Capture(index~ : Int)
   Group
 } derive(Eq)
 
@@ -37,20 +37,20 @@ fn to_string(self : AstNodeInternal) -> String {
 
   match self {
     Empty => "Empty"
-    Single(~char) => "Single " + char.to_int().to_string()
-    NotSingle(~char) => "NotSingle " + char.to_int().to_string()
-    Class(~class) => "Class " + class.to_string()
-    SingleLoop(~char, ~min, ~max, ~greedy) =>
+    Single(char~) => "Single " + char.to_int().to_string()
+    NotSingle(char~) => "NotSingle " + char.to_int().to_string()
+    Class(class~) => "Class " + class.to_string()
+    SingleLoop(char~, min~, max~, greedy~) =>
       "SingleLoop " +
       greedy_str(greedy) +
       range_str(min, max) +
       char.to_int().to_string()
-    NotSingleLoop(~char, ~min, ~max, ~greedy) =>
+    NotSingleLoop(char~, min~, max~, greedy~) =>
       "NotSingleLoop " +
       greedy_str(greedy) +
       range_str(min, max) +
       char.to_int().to_string()
-    ClassLoop(~class, ~min, ~max, ~greedy) =>
+    ClassLoop(class~, min~, max~, greedy~) =>
       "ClassLoop " +
       greedy_str(greedy) +
       range_str(min, max) +
@@ -59,9 +59,9 @@ fn to_string(self : AstNodeInternal) -> String {
     EndOfInput => "EndOfLine"
     Alternate => "Alternate"
     Concatenate => "Concatenate"
-    Loop(~min, ~max, ~greedy) =>
+    Loop(min~, max~, greedy~) =>
       "Loop " + greedy_str(greedy) + range_str(min, max)
-    Capture(~index) => "Capture \{index}"
+    Capture(index~) => "Capture \{index}"
     Group => "Group"
   }
 }
@@ -74,8 +74,8 @@ priv struct AstNode {
 
 fn AstNode::new(
   internal : AstNodeInternal,
-  ~parent : AstNode? = None,
-  ~children : Array[AstNode] = []
+  parent~ : AstNode? = None,
+  children~ : Array[AstNode] = []
 ) -> AstNode {
   { internal, parent, children }
 }
@@ -94,7 +94,7 @@ fn child_num(self : AstNode) -> Int {
 }
 
 fn to_string(self : AstNode) -> String {
-  let buf = Buffer::new()
+  let buf = @buffer.new()
   let mut cur_node = self
   let mut cur_child = 0
   let stack = []
@@ -121,7 +121,7 @@ fn to_string(self : AstNode) -> String {
       }
     }
   }
-  buf.to_string()
+  buf.to_unchecked_string()
 }
 
 priv struct Ast {

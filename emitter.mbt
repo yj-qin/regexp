@@ -82,7 +82,7 @@ fn emit_fragment(
   self : Emitter,
   node : AstNode,
   cur_child : Int,
-  ~status : TraverseStatus = BeforeChild
+  status~ : TraverseStatus = BeforeChild
 ) -> Unit {
   match (node.internal, status) {
     (Empty, _) | (Concatenate, _) => ()
@@ -102,7 +102,7 @@ fn emit_fragment(
           self.patch_jump(self.pop_stack(), self.cur_pos())
         }
       }
-    (Loop(~min, ~max, ..), BeforeChild) => {
+    (Loop(min~, max~, ..), BeforeChild) => {
       if min > 1 || max.is_empty().not() {
         if min == 0 {
           self.emit_1(NullCount, 0)
@@ -119,7 +119,7 @@ fn emit_fragment(
       }
       self.push_stack(self.cur_pos())
     }
-    (Loop(~min, ~max, ~greedy), AfterChild) => {
+    (Loop(min~, max~, greedy~), AfterChild) => {
       let jump_dest = self.cur_pos()
       if min > 1 || max.is_empty().not() {
         let opcode : OpCode = if greedy { BranchCount } else { BranchCountLazy }
@@ -138,16 +138,16 @@ fn emit_fragment(
       }
     }
     (Capture(_), BeforeChild) => self.emit_0(SetMark)
-    (Capture(~index), AfterChild) => self.emit_1(CaptureMark, index)
+    (Capture(index~), AfterChild) => self.emit_1(CaptureMark, index)
     (Group, _) => ()
-    (Single(~char), _) => self.emit_1(Single, char.to_int())
-    (NotSingle(~char), _) => self.emit_1(NotSingle, char.to_int())
-    (Class(~class), _) => {
+    (Single(char~), _) => self.emit_1(Single, char.to_int())
+    (NotSingle(char~), _) => self.emit_1(NotSingle, char.to_int())
+    (Class(class~), _) => {
       let idx = self.classes.length()
       self.classes.push(class)
       self.emit_1(Class, idx)
     }
-    (SingleLoop(~char, ~min, ~max, ~greedy), _) => {
+    (SingleLoop(char~, min~, max~, greedy~), _) => {
       let opd = char.to_int()
       if min > 0 {
         self.emit_2(SingleRepeat, opd, min)
@@ -158,7 +158,7 @@ fn emit_fragment(
         None => self.emit_2(opcode, opd, @int.max_value)
       }
     }
-    (NotSingleLoop(~char, ~min, ~max, ~greedy), _) => {
+    (NotSingleLoop(char~, min~, max~, greedy~), _) => {
       let opd = char.to_int()
       if min > 0 {
         self.emit_2(NotSingleRepeat, opd, min)
@@ -169,7 +169,7 @@ fn emit_fragment(
         None => self.emit_2(opcode, opd, @int.max_value)
       }
     }
-    (ClassLoop(~class, ~min, ~max, ~greedy), _) => {
+    (ClassLoop(class~, min~, max~, greedy~), _) => {
       let idx = self.classes.length()
       self.classes.push(class)
       if min > 0 {
