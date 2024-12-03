@@ -20,8 +20,8 @@ pub fn pattern(self : RegExp) -> String {
 pub fn matches(
   self : RegExp,
   text : String,
-  ~start : Int = 0,
-  ~end : Int = text.length()
+  start~ : Int = 0,
+  end~ : Int = text.length()
 ) -> MatchResult {
   Interpreter::new(self.prog).scan(text, start, end)
 }

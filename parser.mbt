@@ -1,20 +1,20 @@
 let max_loop_count = 100_000
 
-pub type! ParseError {
+pub(all) type! ParseError {
   InternalParserError
-  UnmatchedGroupBegin(~pos : Int)
-  UnmatchedGroupEnd(~pos : Int)
-  UnmatchedGroupName(~pos : Int)
-  EmptyGroupName(~pos : Int)
-  EmptyGroup(~pos : Int)
-  UnmatchedCharClassEnd(~pos : Int)
-  UnspecifiedLoopTarget(~pos : Int)
-  InvalidLoop(~pos : Int)
-  LoopCountOutOfRange(~pos : Int)
-  LoopMaxCountSmallerThanMinCount(~pos : Int)
-  EndPatternAtEscape(~pos : Int)
-  ClassMissingBracket(~pos : Int)
-  GroupMissingParen(~pos : Int)
+  UnmatchedGroupBegin(pos~ : Int)
+  UnmatchedGroupEnd(pos~ : Int)
+  UnmatchedGroupName(pos~ : Int)
+  EmptyGroupName(pos~ : Int)
+  EmptyGroup(pos~ : Int)
+  UnmatchedCharClassEnd(pos~ : Int)
+  UnspecifiedLoopTarget(pos~ : Int)
+  InvalidLoop(pos~ : Int)
+  LoopCountOutOfRange(pos~ : Int)
+  LoopMaxCountSmallerThanMinCount(pos~ : Int)
+  EndPatternAtEscape(pos~ : Int)
+  ClassMissingBracket(pos~ : Int)
+  GroupMissingParen(pos~ : Int)
 } derive(Eq, Show)
 
 priv struct Parser {
@@ -90,7 +90,7 @@ fn check_exist(self : Parser, c : Char) -> Bool {
 }
 
 fn fetch_unsigned_num(self : Parser) -> Int? {
-  let num_buf = Buffer::new()
+  let num_buf = @buffer.new()
   loop self.peek() {
     '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' as d => {
       num_buf.write_char(d)
@@ -101,7 +101,7 @@ fn fetch_unsigned_num(self : Parser) -> Int? {
     }
     _ => break
   }
-  let num_str = num_buf.to_string()
+  let num_str = num_buf.to_unchecked_string()
   if num_str == "" {
     return None
   }
@@ -200,7 +200,7 @@ fn parse_node(self : Parser, in_group : Bool) -> AstNode!ParseError {
     }
     _ as char => {
       self.advance(1)
-      AstNode::new(Single(~char))
+      AstNode::new(Single(char~))
     }
   }
   self.parse_loop!(node)
@@ -236,11 +236,11 @@ fn parse_loop(self : Parser, target : AstNode) -> AstNode!ParseError {
     greedy = false
   }
   match target.internal {
-    Single(~char) => AstNode::new(SingleLoop(~char, ~min, ~max, ~greedy))
-    NotSingle(~char) => AstNode::new(NotSingleLoop(~char, ~min, ~max, ~greedy))
-    Class(~class) => AstNode::new(ClassLoop(~class, ~min, ~max, ~greedy))
+    Single(char~) => AstNode::new(SingleLoop(char~, min~, max~, greedy~))
+    NotSingle(char~) => AstNode::new(NotSingleLoop(char~, min~, max~, greedy~))
+    Class(class~) => AstNode::new(ClassLoop(class~, min~, max~, greedy~))
     _ => {
-      let node = AstNode::new(Loop(~min, ~max, ~greedy))
+      let node = AstNode::new(Loop(min~, max~, greedy~))
       node.add_child(target)
       node
     }
@@ -311,7 +311,7 @@ fn parse_group(self : Parser) -> AstNode!ParseError {
     raise EmptyGroup(pos=self.pos)
   }
   let node = if capture {
-    AstNode::new(Capture(~index))
+    AstNode::new(Capture(index~))
   } else {
     AstNode::new(Group)
   }
@@ -325,7 +325,7 @@ fn parse_group(self : Parser) -> AstNode!ParseError {
 
 fn parse_group_name(self : Parser) -> String!ParseError {
   self.advance(1) // '<'
-  let buf = Buffer::new()
+  let buf = @buffer.new()
   while self.more() && self.peek_is('>').not() {
     buf.write_char(self.peek())
     self.advance(1)
@@ -334,7 +334,7 @@ fn parse_group_name(self : Parser) -> String!ParseError {
     raise UnmatchedGroupName(pos=self.pos)
   }
   self.advance(1) // '>'
-  buf.to_string()
+  buf.to_unchecked_string()
 }
 
 fn parse_class(self : Parser) -> AstNode!ParseError {
@@ -345,7 +345,7 @@ fn parse_class(self : Parser) -> AstNode!ParseError {
     false
   }
   let mut first = true
-  let char_class = CharClass::new(~neg)
+  let char_class = CharClass::new(neg~)
   // Allow ']' and '-' as first char in class
   while self.more() && (self.peek_is(']').not() || first) {
     if (self.peek_is(']') || self.peek_is('-')) && first {
@@ -421,7 +421,7 @@ fn parse_escape(self : Parser) -> AstNode!ParseError {
     'n' => Single(char='\n')
     'v' => Single(char='\u000B')
     'f' => Single(char='\u000C')
-    _ as char => Single(~char)
+    _ as char => Single(char~)
   }
   self.advance(1)
   AstNode::new(node)

@@ -14,9 +14,9 @@ priv enum CharClassCategory {
 } derive(Eq)
 
 fn CharClass::new(
-  ~neg : Bool = false,
-  ~ranges : Array[Int] = [],
-  ~categories : Array[CharClassCategory] = []
+  neg~ : Bool = false,
+  ranges~ : Array[Int] = [],
+  categories~ : Array[CharClassCategory] = []
 ) -> CharClass {
   { neg, ranges, categories }
 }
