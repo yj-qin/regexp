@@ -1,3 +1,4 @@
+///|
 priv enum AstNodeInternal {
   // Leave nodes of the AST.
   Empty
@@ -19,6 +20,7 @@ priv enum AstNodeInternal {
   Group
 } derive(Eq)
 
+///|
 fn to_string(self : AstNodeInternal) -> String {
   fn range_str(min : Int, max : Int?) {
     match max {
@@ -66,12 +68,14 @@ fn to_string(self : AstNodeInternal) -> String {
   }
 }
 
+///|
 priv struct AstNode {
   internal : AstNodeInternal
   mut parent : AstNode?
   children : Array[AstNode]
 }
 
+///|
 fn AstNode::new(
   internal : AstNodeInternal,
   parent~ : AstNode? = None,
@@ -80,19 +84,23 @@ fn AstNode::new(
   { internal, parent, children }
 }
 
+///|
 fn add_child(self : AstNode, child : AstNode) -> Unit {
   child.parent = Some(self)
   self.children.push(child)
 }
 
+///|
 fn get_child(self : AstNode, idx : Int) -> AstNode {
   self.children[idx]
 }
 
+///|
 fn child_num(self : AstNode) -> Int {
   self.children.length()
 }
 
+///|
 fn to_string(self : AstNode) -> String {
   let buf = @buffer.new()
   let mut cur_node = self
@@ -121,15 +129,17 @@ fn to_string(self : AstNode) -> String {
       }
     }
   }
-  buf.to_unchecked_string()
+  buf.contents().to_unchecked_string()
 }
 
+///|
 priv struct Ast {
   root : AstNode
   capture_num : Int
   capture_name_mapping : Map[String, Int]
 }
 
+///|
 impl Show for Ast with output(self, logger) {
   logger.write_char('\n')
   logger.write_string("Number of captures: " + self.capture_num.to_string())
@@ -141,6 +151,7 @@ impl Show for Ast with output(self, logger) {
   logger.write_string(self.root.to_string())
 }
 
+///|
 fn to_string(self : Ast) -> String {
   Show::to_string(self)
 }

@@ -1,3 +1,4 @@
+///|
 fn test_parse(s : String) -> Ast!ParseError {
   Parser::new(s).parse!()
 }

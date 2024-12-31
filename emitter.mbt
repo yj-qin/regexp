@@ -1,8 +1,10 @@
+///|
 priv enum TraverseStatus {
   BeforeChild
   AfterChild
 }
 
+///|
 priv struct Emitter {
   ast : Ast
   bytecodes : Array[Int]
@@ -10,41 +12,50 @@ priv struct Emitter {
   stack : Array[Int]
 }
 
+///|
 fn Emitter::new(ast : Ast) -> Emitter {
   { ast, bytecodes: [], classes: [], stack: [] }
 }
 
+///|
 fn push_stack(self : Emitter, val : Int) -> Unit {
   self.stack.push(val)
 }
 
+///|
 fn pop_stack(self : Emitter) -> Int {
   self.stack.unsafe_pop()
 }
 
+///|
 fn cur_pos(self : Emitter) -> Int {
   self.bytecodes.length()
 }
 
+///|
 fn patch_jump(self : Emitter, offset : Int, dest : Int) -> Unit {
   self.bytecodes[offset + 1] = dest
 }
 
+///|
 fn emit_0(self : Emitter, op : OpCode) -> Unit {
   self.bytecodes.push(op.to_bytecode())
 }
 
+///|
 fn emit_1(self : Emitter, op : OpCode, operand : Int) -> Unit {
   self.bytecodes.push(op.to_bytecode())
   self.bytecodes.push(operand)
 }
 
+///|
 fn emit_2(self : Emitter, op : OpCode, operand1 : Int, operand2 : Int) -> Unit {
   self.bytecodes.push(op.to_bytecode())
   self.bytecodes.push(operand1)
   self.bytecodes.push(operand2)
 }
 
+///|
 fn emit(self : Emitter) -> Program {
   self.emit_1(BranchLazy, 0)
   let mut cur_node = self.ast.root
@@ -78,6 +89,7 @@ fn emit(self : Emitter) -> Program {
   }
 }
 
+///|
 fn emit_fragment(
   self : Emitter,
   node : AstNode,
@@ -103,7 +115,7 @@ fn emit_fragment(
         }
       }
     (Loop(min~, max~, ..), BeforeChild) => {
-      if min > 1 || max.is_empty().not() {
+      if min > 1 || not(max.is_empty()) {
         if min == 0 {
           self.emit_1(NullCount, 0)
         } else {
@@ -121,7 +133,7 @@ fn emit_fragment(
     }
     (Loop(min~, max~, greedy~), AfterChild) => {
       let jump_dest = self.cur_pos()
-      if min > 1 || max.is_empty().not() {
+      if min > 1 || not(max.is_empty()) {
         let opcode : OpCode = if greedy { BranchCount } else { BranchCountLazy }
         let count = if max.is_empty() {
           @int.max_value

@@ -1,3 +1,4 @@
+///|
 priv struct Program {
   bytecodes : Array[Int]
   classes : Array[CharClass]
@@ -5,14 +6,17 @@ priv struct Program {
   capture_name_mapping : Map[String, Int]
 }
 
+///|
 fn op_code(self : Program, pos : Int) -> OpCode {
   OpCode::from_bytecode(self.bytecodes[pos])
 }
 
+///|
 fn operand(self : Program, pos : Int) -> Int {
   self.bytecodes[pos]
 }
 
+///|
 impl Show for Program with output(self, logger) -> Unit {
   let mut pos = 0
   while pos < self.bytecodes.length() {
@@ -22,11 +26,13 @@ impl Show for Program with output(self, logger) -> Unit {
   }
 }
 
+///|
 fn to_string(self : Program) -> String {
   Show::to_string(self)
 }
 
-fn output_op(self : Program, pos : Int, logger : Logger) -> Int {
+///|
+fn output_op(self : Program, pos : Int, logger : &Logger) -> Int {
   let mut size = 0
   logger.write_string("\{pos} ")
   let opcode = OpCode::from_bytecode(self.bytecodes[pos])
@@ -37,7 +43,11 @@ fn output_op(self : Program, pos : Int, logger : Logger) -> Int {
     }
     Goto
     | BranchLazy
-    | BranchMark | BranchMarkLazy | NullCount | SetCount | CaptureMark => {
+    | BranchMark
+    | BranchMarkLazy
+    | NullCount
+    | SetCount
+    | CaptureMark => {
       let opd = self.bytecodes[pos + 1]
       logger.write_string("\{opcode} \{opd}")
       size = 2
@@ -54,7 +64,11 @@ fn output_op(self : Program, pos : Int, logger : Logger) -> Int {
       size = 2
     }
     SingleRepeat
-    | NotSingleRepeat | SingleLoop | NotSingleLoop | SingleLazy | NotSingleLazy => {
+    | NotSingleRepeat
+    | SingleLoop
+    | NotSingleLoop
+    | SingleLazy
+    | NotSingleLazy => {
       let char = self.bytecodes[pos + 1]
       let opd2 = self.bytecodes[pos + 2]
       logger.write_string("\{opcode} \{char} \{opd2}")
