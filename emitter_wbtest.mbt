@@ -1,3 +1,4 @@
+///|
 fn test_emit(ast : Ast) -> Program {
   Emitter::new(ast).emit()
 }

@@ -1,3 +1,4 @@
+///|
 priv enum OpCode {
   Nop
   Stop
@@ -31,6 +32,7 @@ priv enum OpCode {
   GetMark
 } derive(Show)
 
+///|
 fn to_bytecode(self : OpCode) -> Int {
   match self {
     Nop => -1
@@ -64,6 +66,7 @@ fn to_bytecode(self : OpCode) -> Int {
   }
 }
 
+///|
 fn OpCode::from_bytecode(bytecode : Int) -> OpCode {
   match bytecode {
     0 => Stop
@@ -97,7 +100,7 @@ fn OpCode::from_bytecode(bytecode : Int) -> OpCode {
   }
 }
 
-/// Returns true if this operation needs to backtrack.
+///| Returns true if this operation needs to backtrack.
 fn backtrack(self : OpCode) -> Bool {
   match self {
     SingleLoop
@@ -110,8 +113,12 @@ fn backtrack(self : OpCode) -> Bool {
     | BranchMark
     | BranchMarkLazy
     | NullCount
-    | SetCount | BranchCount | BranchCountLazy | SetMark | CaptureMark | Goto =>
-      true
+    | SetCount
+    | BranchCount
+    | BranchCountLazy
+    | SetMark
+    | CaptureMark
+    | Goto => true
     _ => false
   }
 }

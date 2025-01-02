@@ -1,5 +1,7 @@
+///|
 let max_loop_count = 100_000
 
+///|
 pub(all) type! ParseError {
   InternalParserError
   UnmatchedGroupBegin(pos~ : Int)
@@ -17,6 +19,7 @@ pub(all) type! ParseError {
   GroupMissingParen(pos~ : Int)
 } derive(Eq, Show)
 
+///|
 priv struct Parser {
   pattern : String
   mut pos : Int
@@ -26,6 +29,7 @@ priv struct Parser {
   capture_name_mapping : Map[String, Int]
 }
 
+///|
 fn Parser::new(pattern : String) -> Parser {
   {
     pattern,
@@ -37,45 +41,54 @@ fn Parser::new(pattern : String) -> Parser {
   }
 }
 
+///|
 fn pos(self : Parser) -> Int {
   self.pos
 }
 
+///|
 fn rewind(self : Parser, n : Int) -> Unit {
   self.pos -= n
 }
 
+///|
 fn advance(self : Parser, n : Int) -> Unit {
   self.pos += n
 }
 
+///|
 fn mark(self : Parser) -> Unit {
   self.pos_mark = self.pos
 }
 
+///|
 fn restore(self : Parser) -> Unit {
   self.pos = self.pos_mark
 }
 
+///|
 fn more(self : Parser) -> Bool {
   self.pos < self.pattern.length()
 }
 
+///|
 fn peek(self : Parser) -> Char {
-  if self.more().not() {
+  if not(self.more()) {
     abort("index out of bounds")
   }
   self.pattern[self.pos]
 }
 
+///|
 fn peek_is(self : Parser, expected : Char) -> Bool {
-  if self.more().not() {
+  if not(self.more()) {
     false
   } else {
     self.peek() == expected
   }
 }
 
+///|
 fn check_exist(self : Parser, c : Char) -> Bool {
   self.mark()
   while self.more() {
@@ -89,6 +102,7 @@ fn check_exist(self : Parser, c : Char) -> Bool {
   false
 }
 
+///|
 fn fetch_unsigned_num(self : Parser) -> Int? {
   let num_buf = @buffer.new()
   loop self.peek() {
@@ -101,7 +115,7 @@ fn fetch_unsigned_num(self : Parser) -> Int? {
     }
     _ => break
   }
-  let num_str = num_buf.to_unchecked_string()
+  let num_str = num_buf.contents().to_unchecked_string()
   if num_str == "" {
     return None
   }
@@ -113,6 +127,7 @@ fn fetch_unsigned_num(self : Parser) -> Int? {
   }
 }
 
+///|
 fn parse(self : Parser) -> Ast!ParseError {
   let root = AstNode::new(Capture(index=self.group_index))
   self.group_index += 1
@@ -125,9 +140,10 @@ fn parse(self : Parser) -> Ast!ParseError {
   }
 }
 
+///|
 fn parse_expr(self : Parser, in_group : Bool) -> AstNode!ParseError {
   let node = self.parse_concat!(in_group)
-  if self.more().not() || (in_group && self.peek_is(')')) {
+  if not(self.more()) || (in_group && self.peek_is(')')) {
     return node
   } else if self.peek_is('|') {
     let alt_node = AstNode::new(Alternate)
@@ -136,7 +152,7 @@ fn parse_expr(self : Parser, in_group : Bool) -> AstNode!ParseError {
       self.advance(1) // |
       alt_node.add_child(self.parse_concat!(in_group))
     }
-    if in_group.not() && self.more() {
+    if not(in_group) && self.more() {
       raise InternalParserError
     } else {
       alt_node
@@ -146,24 +162,26 @@ fn parse_expr(self : Parser, in_group : Bool) -> AstNode!ParseError {
   }
 }
 
+///|
 fn parse_concat(self : Parser, in_group : Bool) -> AstNode!ParseError {
   let node = self.parse_node!(in_group)
-  if self.more().not() || self.peek_is('|') || (in_group && self.peek_is(')')) {
+  if not(self.more()) || self.peek_is('|') || (in_group && self.peek_is(')')) {
     node
   } else {
     let concat_node = AstNode::new(Concatenate)
     concat_node.add_child(node)
     while self.more() &&
-          self.peek_is('|').not() &&
-          (in_group && self.peek_is(')')).not() {
+          not(self.peek_is('|')) &&
+          not(in_group && self.peek_is(')')) {
       concat_node.add_child(self.parse_node!(in_group))
     }
     concat_node
   }
 }
 
+///|
 fn parse_node(self : Parser, in_group : Bool) -> AstNode!ParseError {
-  if self.more().not() || (in_group && self.peek_is(')')) {
+  if not(self.more()) || (in_group && self.peek_is(')')) {
     return AstNode::new(Empty)
   }
   let node = match self.peek() {
@@ -206,8 +224,9 @@ fn parse_node(self : Parser, in_group : Bool) -> AstNode!ParseError {
   self.parse_loop!(node)
 }
 
+///|
 fn parse_loop(self : Parser, target : AstNode) -> AstNode!ParseError {
-  if self.more().not() {
+  if not(self.more()) {
     return target
   }
   let mut greedy = true
@@ -247,8 +266,9 @@ fn parse_loop(self : Parser, target : AstNode) -> AstNode!ParseError {
   }
 }
 
+///|
 fn parse_loop_range(self : Parser) -> (Int, Int?)!ParseError {
-  if self.more().not() {
+  if not(self.more()) {
     raise InvalidLoop(pos=self.pos)
   }
   let min = match self.fetch_unsigned_num() {
@@ -258,7 +278,7 @@ fn parse_loop_range(self : Parser) -> (Int, Int?)!ParseError {
   if min < 0 || min > max_loop_count {
     raise LoopCountOutOfRange(pos=self.pos)
   }
-  if self.more().not() {
+  if not(self.more()) {
     raise InvalidLoop(pos=self.pos)
   }
   let max : Int? = if self.peek_is(',') {
@@ -267,21 +287,22 @@ fn parse_loop_range(self : Parser) -> (Int, Int?)!ParseError {
   } else {
     Some(min)
   }
-  if max.is_empty().not() && (max.unwrap() < 0 || max.unwrap() > max_loop_count) {
+  if not(max.is_empty()) && (max.unwrap() < 0 || max.unwrap() > max_loop_count) {
     raise LoopCountOutOfRange(pos=self.pos)
   }
-  if self.more().not() || self.peek_is('}').not() {
+  if not(self.more()) || not(self.peek_is('}')) {
     raise InvalidLoop(pos=self.pos)
   }
   self.advance(1) // '}'
-  if max.is_empty().not() && min > max.unwrap() {
+  if not(max.is_empty()) && min > max.unwrap() {
     raise LoopMaxCountSmallerThanMinCount(pos=self.pos)
   }
   (min, max)
 }
 
+///|
 fn parse_group(self : Parser) -> AstNode!ParseError {
-  if self.more().not() {
+  if not(self.more()) {
     raise UnmatchedGroupBegin(pos=self.pos)
   }
   let mut capture = true
@@ -307,7 +328,7 @@ fn parse_group(self : Parser) -> AstNode!ParseError {
       _ => ()
     }
   }
-  if self.more().not() || self.peek_is(')') {
+  if not(self.more()) || self.peek_is(')') {
     raise EmptyGroup(pos=self.pos)
   }
   let node = if capture {
@@ -316,27 +337,29 @@ fn parse_group(self : Parser) -> AstNode!ParseError {
     AstNode::new(Group)
   }
   node.add_child(self.parse_expr!(true))
-  if self.more().not() || self.peek_is(')').not() {
+  if not(self.more()) || not(self.peek_is(')')) {
     raise GroupMissingParen(pos=self.pos)
   }
   self.advance(1) // ')'
   node
 }
 
+///|
 fn parse_group_name(self : Parser) -> String!ParseError {
   self.advance(1) // '<'
   let buf = @buffer.new()
-  while self.more() && self.peek_is('>').not() {
+  while self.more() && not(self.peek_is('>')) {
     buf.write_char(self.peek())
     self.advance(1)
   }
-  if self.peek_is('>').not() {
+  if not(self.peek_is('>')) {
     raise UnmatchedGroupName(pos=self.pos)
   }
   self.advance(1) // '>'
-  buf.to_unchecked_string()
+  buf.contents().to_unchecked_string()
 }
 
+///|
 fn parse_class(self : Parser) -> AstNode!ParseError {
   let neg = if self.peek_is('^') {
     self.advance(1)
@@ -347,7 +370,7 @@ fn parse_class(self : Parser) -> AstNode!ParseError {
   let mut first = true
   let char_class = CharClass::new(neg~)
   // Allow ']' and '-' as first char in class
-  while self.more() && (self.peek_is(']').not() || first) {
+  while self.more() && (not(self.peek_is(']')) || first) {
     if (self.peek_is(']') || self.peek_is('-')) && first {
       char_class.add_single(self.peek())
       self.advance(1)
@@ -385,7 +408,7 @@ fn parse_class(self : Parser) -> AstNode!ParseError {
       char_class.add_range(low, high)
     }
   }
-  if self.more().not() || self.peek_is(']').not() {
+  if not(self.more()) || not(self.peek_is(']')) {
     raise ClassMissingBracket(pos=self.pos)
   } else {
     self.advance(1) // ']'
@@ -393,8 +416,9 @@ fn parse_class(self : Parser) -> AstNode!ParseError {
   }
 }
 
+///|
 fn parse_char_class_char(self : Parser) -> Char!ParseError {
-  if self.more().not() {
+  if not(self.more()) {
     raise ClassMissingBracket(pos=self.pos)
   }
   if self.peek_is('\\') {
@@ -405,8 +429,9 @@ fn parse_char_class_char(self : Parser) -> Char!ParseError {
   c
 }
 
+///|
 fn parse_escape(self : Parser) -> AstNode!ParseError {
-  if self.more().not() {
+  if not(self.more()) {
     raise EndPatternAtEscape(pos=self.pos)
   }
   let node : AstNodeInternal = match self.peek() {

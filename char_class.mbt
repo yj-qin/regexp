@@ -1,9 +1,11 @@
+///|
 priv struct CharClass {
   neg : Bool
   ranges : Array[Int]
   categories : Array[CharClassCategory]
 } derive(Eq)
 
+///|
 priv enum CharClassCategory {
   Digit
   NotDigit
@@ -13,6 +15,7 @@ priv enum CharClassCategory {
   NotWord
 } derive(Eq)
 
+///|
 fn CharClass::new(
   neg~ : Bool = false,
   ranges~ : Array[Int] = [],
@@ -21,29 +24,34 @@ fn CharClass::new(
   { neg, ranges, categories }
 }
 
+///|
 fn add_single(self : CharClass, char : Char) -> Unit {
   self.ranges.push(char.to_int())
   self.ranges.push(char.to_int())
 }
 
+///|
 fn add_range(self : CharClass, low : Char, high : Char) -> Unit {
   self.ranges.push(low.to_int())
   self.ranges.push(high.to_int())
 }
 
+///|
 fn add_category(self : CharClass, category : CharClassCategory) -> Unit {
   self.categories.push(category)
 }
 
+///|
 fn contains(self : CharClass, char : Int) -> Bool {
   let result = self.ranges_contains(char) || self.categories_contains(char)
   if self.neg {
-    result.not()
+    not(result)
   } else {
     result
   }
 }
 
+///|
 fn ranges_contains(self : CharClass, char : Int) -> Bool {
   for i = 0; i < self.ranges.length(); i = i + 2 {
     let low = self.ranges[i]
@@ -56,15 +64,16 @@ fn ranges_contains(self : CharClass, char : Int) -> Bool {
   }
 }
 
+///|
 fn categories_contains(self : CharClass, char : Int) -> Bool {
   for category in self.categories {
     let res = match category {
       Digit => is_digit(char)
-      NotDigit => is_digit(char).not()
+      NotDigit => not(is_digit(char))
       Space => is_whitespace(char)
-      NotSpace => is_whitespace(char).not()
+      NotSpace => not(is_whitespace(char))
       Word => is_word_char(char)
-      NotWord => is_word_char(char).not()
+      NotWord => not(is_word_char(char))
     }
     if res {
       break true
@@ -74,6 +83,7 @@ fn categories_contains(self : CharClass, char : Int) -> Bool {
   }
 }
 
+///|
 impl Show for CharClass with output(self, logger) -> Unit {
   logger.write_char('[')
   if self.neg {
@@ -106,10 +116,12 @@ impl Show for CharClass with output(self, logger) -> Unit {
   logger.write_char(']')
 }
 
+///|
 fn to_string(self : CharClass) -> String {
   Show::to_string(self)
 }
 
+///|
 fn is_whitespace(char : Int) -> Bool {
   return char == ' '.to_int() ||
     char == '\t'.to_int() ||
@@ -134,6 +146,7 @@ fn is_whitespace(char : Int) -> Bool {
     char == '\u2029'.to_int()
 }
 
+///|
 fn is_word_char(char : Int) -> Bool {
   return (char >= 'a'.to_int() && char <= 'z'.to_int()) ||
     (char >= 'A'.to_int() && char <= 'Z'.to_int()) ||
@@ -141,6 +154,7 @@ fn is_word_char(char : Int) -> Bool {
     char == '_'.to_int()
 }
 
+///|
 fn is_digit(char : Int) -> Bool {
   return char >= '0'.to_int() && char <= '9'.to_int()
 }

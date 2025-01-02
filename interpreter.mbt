@@ -1,9 +1,11 @@
+///|
 priv enum RunningStatus {
   Normal
   Backtracking
   BacktrackingBranch
 } derive(Show, Eq)
 
+///|
 priv struct Interpreter {
   prog : Program
   mut status : RunningStatus
@@ -19,6 +21,7 @@ priv struct Interpreter {
   captures : Array[(Int, Int)?]
 }
 
+///|
 fn Interpreter::new(prog : Program) -> Interpreter {
   {
     prog,
@@ -36,20 +39,24 @@ fn Interpreter::new(prog : Program) -> Interpreter {
   }
 }
 
+///|
 fn advance(self : Interpreter, num : Int) -> Unit {
   self.op_pos += num
   self.op_code = self.prog.op_code(self.op_pos)
 }
 
+///|
 fn goto(self : Interpreter, pos : Int) -> Unit {
   self.op_pos = pos
   self.op_code = self.prog.op_code(self.op_pos)
 }
 
+///|
 fn operand(self : Interpreter, n : Int) -> Int {
   self.prog.operand(self.op_pos + n + 1)
 }
 
+///|
 fn backtrack(self : Interpreter) -> Unit {
   let op_pos = self.op_pop()
   if op_pos < 0 {
@@ -62,59 +69,72 @@ fn backtrack(self : Interpreter) -> Unit {
   self.op_code = self.prog.op_code(self.op_pos)
 }
 
+///|
 fn capture(self : Interpreter, idx : Int, start : Int, end : Int) -> Unit {
   let (start, end) = if end < start { (end, start) } else { (start, end) }
   self.capture_stack.push(idx)
   self.captures[idx] = Some((start, end))
 }
 
+///|
 fn uncapture(self : Interpreter) -> Unit {
   let idx = self.capture_stack.unsafe_pop()
   self.captures[idx] = None
 }
 
+///|
 fn op_push(self : Interpreter, branch~ : Bool = false) -> Unit {
   self.op_stack.push(if branch { -self.op_pos } else { self.op_pos })
 }
 
+///|
 fn op_pop(self : Interpreter) -> Int {
   self.op_stack.unsafe_pop()
 }
 
+///|
 fn track_push(self : Interpreter, arg : Int) -> Unit {
   self.track_stack.push(arg)
 }
 
+///|
 fn track_pop(self : Interpreter) -> Int {
   self.track_stack.unsafe_pop()
 }
 
+///|
 fn run_push(self : Interpreter, arg : Int) -> Unit {
   self.run_stack.push(arg)
 }
 
+///|
 fn run_pop(self : Interpreter) -> Int {
   self.run_stack.unsafe_pop()
 }
 
+///|
 fn chars_remain(self : Interpreter) -> Int {
   self.text_end - self.text_pos
 }
 
+///|
 fn next_char(self : Interpreter, text : String) -> Int {
   self.text_pos += 1
   text[self.text_pos - 1].to_int()
 }
 
+///|
 fn rewind(self : Interpreter) -> Unit {
   self.text_pos -= 1
 }
 
+///|
 fn char_in_class(self : Interpreter, class_idx : Int, char : Int) -> Bool {
   let class = self.prog.classes[class_idx]
   class.contains(char)
 }
 
+///|
 fn scan(
   self : Interpreter,
   text : String,
@@ -130,16 +150,14 @@ fn scan(
     }
     self.text_pos += 1
   }
-  let captures = self.captures.map(
-    fn(r) {
-      if r == None {
-        ""
-      } else {
-        let (start, end) = r.unwrap()
-        text.substring(start~, end~)
-      }
-    },
-  )
+  let captures = self.captures.map(fn(r) {
+    if r == None {
+      ""
+    } else {
+      let (start, end) = r.unwrap()
+      text.substring(start~, end~)
+    }
+  })
   let named_captures = {}
   for k, v in self.prog.capture_name_mapping {
     named_captures[k] = captures[v]
@@ -147,6 +165,7 @@ fn scan(
   { success: self.captures[0] != None, captures, named_captures }
 }
 
+///|
 fn try_match(self : Interpreter, text : String) -> Bool {
   self.op_pos = 0
   self.op_code = self.prog.op_code(self.op_pos)
@@ -447,7 +466,7 @@ fn try_match(self : Interpreter, text : String) -> Bool {
           matched = false
         } else {
           for i = 0; i < count; i = i + 1 {
-            if self.char_in_class(class_idx, self.next_char(text)).not() {
+            if not(self.char_in_class(class_idx, self.next_char(text))) {
               matched = false
               self.rewind()
               break
@@ -504,7 +523,7 @@ fn try_match(self : Interpreter, text : String) -> Bool {
         let count = @math.minimum(max_count, self.chars_remain())
         let mut i = count
         while i > 0 {
-          if self.char_in_class(self.operand(0), self.next_char(text)).not() {
+          if not(self.char_in_class(self.operand(0), self.next_char(text))) {
             self.rewind()
             break
           }
@@ -519,7 +538,8 @@ fn try_match(self : Interpreter, text : String) -> Bool {
         continue
       }
       (SingleLoop, Backtracking)
-      | (NotSingleLoop, Backtracking) | (ClassLoop, Backtracking) => {
+      | (NotSingleLoop, Backtracking)
+      | (ClassLoop, Backtracking) => {
         let text_pos = self.track_pop()
         let i = self.track_pop()
         self.text_pos = text_pos
@@ -592,6 +612,7 @@ fn try_match(self : Interpreter, text : String) -> Bool {
   false
 }
 
+///|
 fn debug_state(self : Interpreter) -> String {
   let buf = @buffer.new()
   let _ = self.prog.output_op(self.op_pos, buf)
@@ -600,5 +621,5 @@ fn debug_state(self : Interpreter) -> String {
   buf.write_string("op_stack: " + self.op_stack.to_string() + "\n")
   buf.write_string("track_stack: " + self.track_stack.to_string() + "\n")
   buf.write_string("run_stack: " + self.run_stack.to_string() + "\n")
-  buf.to_unchecked_string()
+  buf.contents().to_unchecked_string()
 }
