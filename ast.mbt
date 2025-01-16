@@ -101,23 +101,22 @@ fn child_num(self : AstNode) -> Int {
 }
 
 ///|
-fn to_string(self : AstNode) -> String {
-  let buf = @buffer.new()
+impl Show for AstNode with output(self, logger) -> Unit {
   let mut cur_node = self
   let mut cur_child = 0
   let stack = []
-  buf.write_string(cur_node.internal.to_string())
-  buf.write_char('\n')
+  logger.write_string(cur_node.internal.to_string())
+  logger.write_char('\n')
   for {
     if cur_child < cur_node.child_num() {
       stack.push(cur_child + 1)
       cur_node = cur_node.get_child(cur_child)
       cur_child = 0
       for i = 0; i < stack.length(); i = i + 1 {
-        buf.write_string("  ")
+        logger.write_string("  ")
       }
-      buf.write_string(cur_node.internal.to_string())
-      buf.write_char('\n')
+      logger.write_string(cur_node.internal.to_string())
+      logger.write_char('\n')
     } else {
       if stack.is_empty() {
         break
@@ -129,7 +128,6 @@ fn to_string(self : AstNode) -> String {
       }
     }
   }
-  buf.contents().to_unchecked_string()
 }
 
 ///|
@@ -149,9 +147,4 @@ impl Show for Ast with output(self, logger) {
   logger.write_char('\n')
   logger.write_string("Ast:\n")
   logger.write_string(self.root.to_string())
-}
-
-///|
-fn to_string(self : Ast) -> String {
-  Show::to_string(self)
 }

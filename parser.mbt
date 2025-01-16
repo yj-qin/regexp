@@ -47,12 +47,12 @@ fn pos(self : Parser) -> Int {
 }
 
 ///|
-fn rewind(self : Parser, n : Int) -> Unit {
+fn Parser::rewind(self : Parser, n : Int) -> Unit {
   self.pos -= n
 }
 
 ///|
-fn advance(self : Parser, n : Int) -> Unit {
+fn Parser::advance(self : Parser, n : Int) -> Unit {
   self.pos += n
 }
 

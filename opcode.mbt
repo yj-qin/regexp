@@ -101,7 +101,7 @@ fn OpCode::from_bytecode(bytecode : Int) -> OpCode {
 }
 
 ///| Returns true if this operation needs to backtrack.
-fn backtrack(self : OpCode) -> Bool {
+fn need_backtrack(self : OpCode) -> Bool {
   match self {
     SingleLoop
     | SingleLazy
