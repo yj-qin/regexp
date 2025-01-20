@@ -12,7 +12,7 @@ fn op_code(self : Program, pos : Int) -> OpCode {
 }
 
 ///|
-fn operand(self : Program, pos : Int) -> Int {
+fn Program::operand(self : Program, pos : Int) -> Int {
   self.bytecodes[pos]
 }
 
@@ -24,11 +24,6 @@ impl Show for Program with output(self, logger) -> Unit {
     logger.write_char('\n')
     pos += size
   }
-}
-
-///|
-fn to_string(self : Program) -> String {
-  Show::to_string(self)
 }
 
 ///|

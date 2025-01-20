@@ -117,11 +117,6 @@ impl Show for CharClass with output(self, logger) -> Unit {
 }
 
 ///|
-fn to_string(self : CharClass) -> String {
-  Show::to_string(self)
-}
-
-///|
 fn is_whitespace(char : Int) -> Bool {
   return char == ' '.to_int() ||
     char == '\t'.to_int() ||
