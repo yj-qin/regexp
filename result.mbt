@@ -20,6 +20,7 @@ pub fn named_captures(self : MatchResult) -> Map[String, String] {
   self.named_captures
 }
 
+///|
 test "get captures" {
   let res = {
     success: true,

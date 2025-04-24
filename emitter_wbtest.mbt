@@ -3,6 +3,7 @@ fn test_emit(ast : Ast) -> Program {
   Emitter::new(ast).emit()
 }
 
+///|
 test "should emit single" {
   inspect!(
     test_parse!("a") |> test_emit(),
@@ -17,6 +18,7 @@ test "should emit single" {
   )
 }
 
+///|
 test "should emit concat" {
   inspect!(
     test_parse!("abc") |> test_emit(),
@@ -33,6 +35,7 @@ test "should emit concat" {
   )
 }
 
+///|
 test "should emit alt" {
   inspect!(
     test_parse!("a|b|c") |> test_emit(),
@@ -53,6 +56,7 @@ test "should emit alt" {
   )
 }
 
+///|
 test "should emit loop" {
   inspect!(
     test_parse!("a*") |> test_emit(),
@@ -171,6 +175,7 @@ test "should emit loop" {
   )
 }
 
+///|
 test "should emit class" {
   inspect!(
     test_parse!("[abc]") |> test_emit(),
@@ -207,6 +212,7 @@ test "should emit class" {
   )
 }
 
+///|
 test "should emit group" {
   inspect!(
     test_parse!("(abc)") |> test_emit(),
@@ -262,6 +268,7 @@ test "should emit group" {
   )
 }
 
+///|
 test "should emit non-capturing group" {
   inspect!(
     test_parse!("(?:abc)") |> test_emit(),
@@ -278,6 +285,7 @@ test "should emit non-capturing group" {
   )
 }
 
+///|
 test "should emit named group" {
   inspect!(
     test_parse!("(?<group1>abc)") |> test_emit(),
@@ -296,6 +304,7 @@ test "should emit named group" {
   )
 }
 
+///|
 test "should emit common pattern" {
   let ast = test_parse!("^([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$")
   inspect!(
