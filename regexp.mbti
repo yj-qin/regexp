@@ -1,7 +1,17 @@
-package yj-qin/regexp
+package "yj-qin/regexp"
 
 // Values
+fn captures(MatchResult) -> Array[String]
+
 fn compile(String) -> RegExp!
+
+fn matches(RegExp, String, start~ : Int = .., end~ : Int = ..) -> MatchResult
+
+fn named_captures(MatchResult) -> Map[String, String]
+
+fn pattern(RegExp) -> String
+
+fn success(MatchResult) -> Bool
 
 // Types and methods
 type MatchResult
@@ -14,19 +24,19 @@ impl Show for MatchResult
 
 pub(all) type! ParseError {
   InternalParserError
-  UnmatchedGroupBegin(Int)
-  UnmatchedGroupEnd(Int)
-  UnmatchedGroupName(Int)
-  EmptyGroupName(Int)
-  EmptyGroup(Int)
-  UnmatchedCharClassEnd(Int)
-  UnspecifiedLoopTarget(Int)
-  InvalidLoop(Int)
-  LoopCountOutOfRange(Int)
-  LoopMaxCountSmallerThanMinCount(Int)
-  EndPatternAtEscape(Int)
-  ClassMissingBracket(Int)
-  GroupMissingParen(Int)
+  UnmatchedGroupBegin(pos~ : Int)
+  UnmatchedGroupEnd(pos~ : Int)
+  UnmatchedGroupName(pos~ : Int)
+  EmptyGroupName(pos~ : Int)
+  EmptyGroup(pos~ : Int)
+  UnmatchedCharClassEnd(pos~ : Int)
+  UnspecifiedLoopTarget(pos~ : Int)
+  InvalidLoop(pos~ : Int)
+  LoopCountOutOfRange(pos~ : Int)
+  LoopMaxCountSmallerThanMinCount(pos~ : Int)
+  EndPatternAtEscape(pos~ : Int)
+  ClassMissingBracket(pos~ : Int)
+  GroupMissingParen(pos~ : Int)
 }
 impl Eq for ParseError
 impl Show for ParseError
