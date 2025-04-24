@@ -4,6 +4,7 @@ fn test_parse(s : String) -> Ast!ParseError {
 }
 
 // #region single
+///|
 test "should parse single char" {
   inspect!(
     test_parse!("a"),
@@ -19,6 +20,7 @@ test "should parse single char" {
   )
 }
 
+///|
 test "should parse any char" {
   inspect!(
     test_parse!("."),
@@ -34,6 +36,7 @@ test "should parse any char" {
   )
 }
 
+///|
 test "should parse escape" {
   inspect!(
     test_parse!("\\s"),
@@ -184,6 +187,7 @@ test "should parse escape" {
 // #endregion
 
 // #region concat
+///|
 test "should parse concat" {
   inspect!(
     test_parse!("abc"),
@@ -204,6 +208,7 @@ test "should parse concat" {
 // #endregion
 
 // #region alt
+///|
 test "should parse alt" {
   inspect!(
     test_parse!("a|b|c"),
@@ -224,6 +229,7 @@ test "should parse alt" {
 // #endregion
 
 // #region repeat
+///|
 test "should parse star" {
   inspect!(
     test_parse!("a*"),
@@ -239,6 +245,7 @@ test "should parse star" {
   )
 }
 
+///|
 test "should parse plus" {
   inspect!(
     test_parse!("a+"),
@@ -254,6 +261,7 @@ test "should parse plus" {
   )
 }
 
+///|
 test "should parse quest" {
   inspect!(
     test_parse!("a?"),
@@ -269,6 +277,7 @@ test "should parse quest" {
   )
 }
 
+///|
 test "should parse exact loop" {
   inspect!(
     test_parse!("a{2}"),
@@ -284,6 +293,7 @@ test "should parse exact loop" {
   )
 }
 
+///|
 test "should parse loop [min, max]" {
   inspect!(
     test_parse!("a{1,2}"),
@@ -299,6 +309,7 @@ test "should parse loop [min, max]" {
   )
 }
 
+///|
 test "should parse loop [min, infinity]" {
   inspect!(
     test_parse!("a{0,}"),
@@ -314,6 +325,7 @@ test "should parse loop [min, infinity]" {
   )
 }
 
+///|
 test "should parse non-greedy" {
   inspect!(
     test_parse!("a*?"),
@@ -365,6 +377,7 @@ test "should parse non-greedy" {
   )
 }
 
+///|
 test "throws on invalid loop" {
   inspect!(test_parse?("a{,1}"), content="Err(InvalidLoop(pos=2))")
   inspect!(test_parse?("a{0,1"), content="Err(InvalidLoop(pos=5))")
@@ -373,6 +386,7 @@ test "throws on invalid loop" {
 // #endregion
 
 // #region class
+///|
 test "should parse class" {
   inspect!(
     test_parse!("[abc]"),
@@ -388,6 +402,7 @@ test "should parse class" {
   )
 }
 
+///|
 test "should parse range class" {
   inspect!(
     test_parse!("[a-z]"),
@@ -427,6 +442,7 @@ test "should parse range class" {
   )
 }
 
+///|
 test "should parse negated class" {
   inspect!(
     test_parse!("[^abc]"),
@@ -442,6 +458,7 @@ test "should parse negated class" {
   )
 }
 
+///|
 test "should parse escape class" {
   inspect!(
     test_parse!("[A-Za-z\\s]"),
@@ -481,12 +498,14 @@ test "should parse escape class" {
   )
 }
 
+///|
 test "throws on unclosed class" {
   inspect!(test_parse?("[abc"), content="Err(ClassMissingBracket(pos=4))")
 }
 // #endregion
 
 // #region group
+///|
 test "should parse group" {
   inspect!(
     test_parse!("(a)"),
@@ -519,6 +538,7 @@ test "should parse group" {
   )
 }
 
+///|
 test "should parse nested group" {
   inspect!(
     test_parse!("((a)bc)"),
@@ -539,6 +559,7 @@ test "should parse nested group" {
   )
 }
 
+///|
 test "should parse nested group concat" {
   inspect!(
     test_parse!("((a)(b))"),
@@ -559,6 +580,7 @@ test "should parse nested group concat" {
   )
 }
 
+///|
 test "should parse nested group alt" {
   inspect!(
     test_parse!("((a)|bc)"),
@@ -597,6 +619,7 @@ test "should parse nested group alt" {
   )
 }
 
+///|
 test "should parse non-capturing group" {
   inspect!(
     test_parse!("(?:a)"),
@@ -613,6 +636,7 @@ test "should parse non-capturing group" {
   )
 }
 
+///|
 test "should parse named group" {
   inspect!(
     test_parse!("(?<group1>a)"),
@@ -629,20 +653,24 @@ test "should parse named group" {
   )
 }
 
+///|
 test "throws on unclosed group" {
   inspect!(test_parse?("(abc"), content="Err(GroupMissingParen(pos=4))")
 }
 
+///|
 test "throws on empty group" {
   inspect!(test_parse?("()"), content="Err(EmptyGroup(pos=1))")
 }
 
+///|
 test "throws on empty group name" {
   inspect!(test_parse?("(?<>abc)"), content="Err(EmptyGroupName(pos=4))")
 }
 // #endregion
 
 // #region escape
+///|
 test "should parse escape" {
   inspect!(
     test_parse!("\\*"),
@@ -696,6 +724,7 @@ test "should parse escape" {
 // #endregion
 
 // #region common
+///|
 test "should parse common regexp" {
   inspect!(
     test_parse!("^([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$"),

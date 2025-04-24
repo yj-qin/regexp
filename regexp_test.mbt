@@ -1,3 +1,4 @@
+///|
 test "should match single" {
   inspect!(
     @regexp.compile!("a").matches("abc"),
@@ -13,6 +14,7 @@ test "should match single" {
   )
 }
 
+///|
 test "should match escape" {
   inspect!(
     @regexp.compile!("\\d").matches("123"),
@@ -118,6 +120,7 @@ test "should match escape" {
   )
 }
 
+///|
 test "should match concat" {
   inspect!(
     @regexp.compile!("cde").matches("abcdef"),
@@ -133,6 +136,7 @@ test "should match concat" {
   )
 }
 
+///|
 test "should match alt" {
   inspect!(
     @regexp.compile!("a|b|c").matches("a"),
@@ -160,6 +164,7 @@ test "should match alt" {
   )
 }
 
+///|
 test "should match class" {
   inspect!(
     @regexp.compile!("[abc]").matches("a"),
@@ -199,6 +204,7 @@ test "should match class" {
   )
 }
 
+///|
 test "should match escape class" {
   inspect!(
     @regexp.compile!("[\\d]+").matches("abc123"),
@@ -238,6 +244,7 @@ test "should match escape class" {
   )
 }
 
+///|
 test "should match class repeat" {
   inspect!(
     @regexp.compile!("[a-z]{3}").matches("abc"),
@@ -253,6 +260,7 @@ test "should match class repeat" {
   )
 }
 
+///|
 test "should match class loop" {
   inspect!(
     @regexp.compile!("[a-z]*").matches("abc"),
@@ -274,6 +282,7 @@ test "should match class loop" {
   )
 }
 
+///|
 test "should match class lazy loop" {
   inspect!(
     @regexp.compile!("[a-z]+?").matches("abc"),
@@ -289,6 +298,7 @@ test "should match class lazy loop" {
   )
 }
 
+///|
 test "should match assert" {
   inspect!(
     @regexp.compile!("^abc").matches("abcdef"),
@@ -316,6 +326,7 @@ test "should match assert" {
   )
 }
 
+///|
 test "should match one or more" {
   inspect!(
     @regexp.compile!("a+").matches("aaa"),
@@ -331,6 +342,7 @@ test "should match one or more" {
   )
 }
 
+///|
 test "should match zero or more" {
   inspect!(
     @regexp.compile!("a*").matches("aaa"),
@@ -346,6 +358,7 @@ test "should match zero or more" {
   )
 }
 
+///|
 test "should match zero or one" {
   inspect!(
     @regexp.compile!("a?").matches("aaa"),
@@ -361,6 +374,7 @@ test "should match zero or one" {
   )
 }
 
+///|
 test "should match quantifier" {
   inspect!(
     @regexp.compile!("a{2}").matches("aa"),
@@ -412,6 +426,7 @@ test "should match quantifier" {
   )
 }
 
+///|
 test "should match non-greedy" {
   inspect!(
     @regexp.compile!("a*?").matches("aaabc"),
@@ -439,6 +454,7 @@ test "should match non-greedy" {
   )
 }
 
+///|
 test "should match group" {
   inspect!(
     @regexp.compile!("(abc)|(def)").matches("def"),
@@ -462,6 +478,7 @@ test "should match group" {
   )
 }
 
+///|
 test "should match email address" {
   inspect!(
     @regexp.compile!(
@@ -472,3 +489,136 @@ test "should match email address" {
     ,
   )
 }
+
+///|
+test "should handle NotSingle and NotSingleRepeat" {
+  inspect!(
+    @regexp.compile!(".").matches("a"),
+    content=
+      #|{success: true, captures: ["a"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("[^a]").matches("b"),
+    content=
+      #|{success: true, captures: ["b"], named_captures: {}}
+    ,
+  )
+
+  // Testing NotSingleRepeat
+  inspect!(
+    @regexp.compile!(".{2}").matches("ab"),
+    content=
+      #|{success: true, captures: ["ab"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!(".{2}").matches("a"),
+    content=
+      #|{success: false, captures: [""], named_captures: {}}
+    ,
+  )
+}
+
+///|
+test "should handle NotSingleLoop" {
+  inspect!(
+    @regexp.compile!("[^a]*").matches("bcd"),
+    content=
+      #|{success: true, captures: ["bcd"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("[^a]+").matches("bcd"),
+    content=
+      #|{success: true, captures: ["bcd"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("[^a]+").matches("a"),
+    content=
+      #|{success: false, captures: [""], named_captures: {}}
+    ,
+  )
+}
+
+///|
+test "should handle special captures and complex patterns" {
+  inspect!(
+    @regexp.compile!("(a|ab)(bc|c)").matches("abc"),
+    content=
+      #|{success: true, captures: ["abc", "a", "bc"], named_captures: {}}
+    ,
+  )
+
+  // Test backreferences
+  // inspect!(
+  //   @regexp.compile!("(\\w+)\\s+\\1").matches("hello hello"),
+  //   content=
+  //     #|{success: true, captures: ["hello hello", "hello"], named_captures: {}}
+  //   ,
+  // )
+
+  // Test special chars in character classes
+  // inspect!(
+  //   @regexp.compile!("[-]").matches("-"),
+  //   content=
+  //     #|{success: true, captures: ["-"], named_captures: {}}
+  //   ,
+  // )
+
+  // Test complex loop targets
+  inspect!(
+    @regexp.compile!("(ab)+").matches("ababab"),
+    content=
+      #|{success: true, captures: ["ababab", "ab"], named_captures: {}}
+    ,
+  )
+
+  // inspect!(
+  //   @regexp.compile!("(a{1,3}?)(a{1,3}?)").matches("aaa"),
+  //   content=
+  //     #|{success: true, captures: ["aaa", "a", "aa"], named_captures: {}}
+  //   ,
+  // )
+}
+
+///|
+test "should handle NullMark and other special opcodes" {
+  // Using loop repetition which should trigger NullMark
+  inspect!(
+    @regexp.compile!("(abc)*def").matches("abcabcdef"),
+    content=
+      #|{success: true, captures: ["abcabcdef", "abc"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("(abc)*def").matches("def"),
+    content=
+      #|{success: true, captures: ["def", ""], named_captures: {}}
+    ,
+  )
+
+  // This should test BranchMark in backtracking
+  inspect!(
+    @regexp.compile!("(a*)(b*)").matches("aaabbb"),
+    content=
+      #|{success: true, captures: ["aaabbb", "aaa", "bbb"], named_captures: {}}
+    ,
+  )
+
+  // This tests BranchMark with BacktrackingBranch
+  inspect!(
+    @regexp.compile!("(a*)(a*)b").matches("aaab"),
+    content=
+      #|{success: true, captures: ["aaab", "aaa", ""], named_captures: {}}
+    ,
+  )
+}
+
+// test "should handle debug_info" {
+//   let re = @regexp.compile!("abc.*")
+//   let result = re.debug_info()
+//   inspect!(result.length() > 0, content=#|true
+//   )
+// }
