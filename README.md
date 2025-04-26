@@ -6,12 +6,21 @@ The design of the bytecode and interpreter was heavily inspired by the .NET regu
 
 ## Usage
 
-```
-let regexp = @regexp.compile!("^(?<addr>[a-zA-Z0-9._%+-]+)@(?<host>[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$")
-let match_result = regexp.matches("12345@test.com")
-println(match_result.success()) // true
-println(match_result.captures()) // ["12345@test.com", "12345", "test.com"]
-println(match_result.named_captures()) // {"addr": "12345", "host": "test.com"}
+```moonbit
+test "basic" {
+  let regexp = @regexp.compile!(
+    "^(?<addr>[a-zA-Z0-9._%+-]+)@(?<host>[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$",
+  )
+  let match_result = regexp.matches("12345@test.com")
+  @json.inspect!(match_result.success(), content=true)
+  @json.inspect!(match_result.captures(), content=[
+    "12345@test.com", "12345", "test.com",
+  ])
+  @json.inspect!(match_result.named_captures(), content={
+    "addr": "12345",
+    "host": "test.com",
+  })
+}
 ```
 
 ## Features
