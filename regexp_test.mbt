@@ -574,13 +574,22 @@ test "should handle special captures and complex patterns" {
       #|{success: true, captures: ["ababab", "ab"], named_captures: {}}
     ,
   )
+}
 
-  // inspect!(
-  //   @regexp.compile!("(a{1,3}?)(a{1,3}?)").matches("aaa"),
-  //   content=
-  //     #|{success: true, captures: ["aaa", "a", "aa"], named_captures: {}}
-  //   ,
-  // )
+///|
+test {
+  inspect!(
+    @regexp.compile!("(a{1,3}?)(a{1,3}?)").matches("aaa"),
+    content=
+      #|{success: true, captures: ["aa", "a", "a"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    @regexp.compile!("(a{1,3}?)(a{1,3}?)$").matches("aaa"),
+    content=
+      #|{success: true, captures: ["aaa", "a", "aa"], named_captures: {}}
+    ,
+  )
 }
 
 ///|
