@@ -631,3 +631,491 @@ test "should handle NullMark and other special opcodes" {
 //   inspect!(result.length() > 0, content=#|true
 //   )
 // }
+
+///|
+test "should access regexp pattern" {
+  let re = @regexp.compile!("abc.*")
+  inspect!(re.pattern(), content="abc.*")
+}
+
+///|
+test "should access match result captures" {
+  let result = @regexp.compile!("(a)(b)(c)").matches("abc")
+  let captures = result.captures()
+  inspect!(
+    captures,
+    content=
+      #|["abc", "a", "b", "c"]
+    ,
+  )
+}
+
+///|
+test "should handle BranchCount and BranchCountLazy opcodes" {
+  // This pattern will use BranchCount when compiled
+  let re = @regexp.compile!("a{2,5}")
+  inspect!(
+    re.matches("aa"),
+    content=
+      #|{success: true, captures: ["aa"], named_captures: {}}
+    ,
+  )
+
+  // This pattern will use BranchCountLazy when compiled
+  let re_lazy = @regexp.compile!("a{2,5}?")
+  inspect!(
+    re_lazy.matches("aaaaa"),
+    content=
+      #|{success: true, captures: ["aa"], named_captures: {}}
+    ,
+  )
+}
+
+///|
+test "should handle NotSingleLoop opcode" {
+  // This pattern uses NotSingleLoop to match any character except 'a' repeated
+  let re = @regexp.compile!("[^a]+")
+  inspect!(
+    re.matches("bcde"),
+    content=
+      #|{success: true, captures: ["bcde"], named_captures: {}}
+    ,
+  )
+
+  // Test that it fails when only 'a' is present
+  inspect!(
+    re.matches("a"),
+    content=
+      #|{success: false, captures: [""], named_captures: {}}
+    ,
+  )
+
+  // Test with mixed content
+  inspect!(
+    re.matches("bcadef"),
+    content=
+      #|{success: true, captures: ["bc"], named_captures: {}}
+    ,
+  )
+}
+
+///|
+test "should handle ClassLazy opcode" {
+  // This pattern uses ClassLazy to match classes lazily
+  let re = @regexp.compile!("[a-z]{1,5}?")
+  inspect!(
+    re.matches("abcde"),
+    content=
+      #|{success: true, captures: ["a"], named_captures: {}}
+    ,
+  )
+
+  // Test that it keeps matching when forced to by the pattern
+  let re2 = @regexp.compile!("[a-z]{1,5}?c")
+  inspect!(
+    re2.matches("abc"),
+    content=
+      #|{success: true, captures: ["abc"], named_captures: {}}
+    ,
+  )
+}
+
+///|
+test "should handle NullMark in simple capture" {
+  // This should use NullMark internally
+  let re = @regexp.compile!("(a*)")
+  inspect!(
+    re.matches(""),
+    content=
+      #|{success: true, captures: ["", ""], named_captures: {}}
+    ,
+  )
+}
+
+///|
+test "should handle BranchMark in captures" {
+  // This should use BranchMark
+  let re = @regexp.compile!("(a*)(b)")
+  inspect!(
+    re.matches("aaab"),
+    content=
+      #|{success: true, captures: ["aaab", "aaa", "b"], named_captures: {}}
+    ,
+  )
+}
+
+///|
+test "should handle NotSingleRepeat opcode" {
+  // This tests NotSingleRepeat
+  let re = @regexp.compile!("[^a]{2}")
+  inspect!(
+    re.matches("bc"),
+    content=
+      #|{success: true, captures: ["bc"], named_captures: {}}
+    ,
+  )
+
+  // Test failure case
+  inspect!(
+    re.matches("ac"),
+    content=
+      #|{success: false, captures: [""], named_captures: {}}
+    ,
+  )
+}
+
+///|
+test "should handle SetCount and related count operations" {
+  // This should use SetCount for quantifiers with min > 1
+  let re = @regexp.compile!("a{3,5}")
+  inspect!(
+    re.matches("aaa"),
+    content=
+      #|{success: true, captures: ["aaa"], named_captures: {}}
+    ,
+  )
+
+  // Test with exact count
+  let re2 = @regexp.compile!("a{3}")
+  inspect!(
+    re2.matches("aaa"),
+    content=
+      #|{success: true, captures: ["aaa"], named_captures: {}}
+    ,
+  )
+
+  // Test with min=0
+  let re3 = @regexp.compile!("a{0,3}")
+  inspect!(
+    re3.matches(""),
+    content=
+      #|{success: true, captures: [""], named_captures: {}}
+    ,
+  )
+}
+
+///|
+test "should handle BranchMarkLazy opcode" {
+  // This uses lazy matching with BranchMarkLazy
+  let re = @regexp.compile!("(a*?)b")
+  inspect!(
+    re.matches("aaab"),
+    content=
+      #|{success: true, captures: ["aaab", "aaa"], named_captures: {}}
+    ,
+  )
+}
+
+///|
+test "should handle NullCount opcode" {
+  // This should use NullCount
+  let re = @regexp.compile!("(a{0,5})")
+  inspect!(
+    re.matches(""),
+    content=
+      #|{success: true, captures: ["", ""], named_captures: {}}
+    ,
+  )
+}
+
+///|
+test "should handle fixed quantifiers in classes" {
+  // This should use ClassRepeat for matching char classes with specific lengths
+  let re = @regexp.compile!("[0-9]{3}")
+  inspect!(
+    re.matches("123"),
+    content=
+      #|{success: true, captures: ["123"], named_captures: {}}
+    ,
+  )
+
+  // Test with min/max range
+  let re2 = @regexp.compile!("[0-9]{2,4}")
+  inspect!(
+    re2.matches("123"),
+    content=
+      #|{success: true, captures: ["123"], named_captures: {}}
+    ,
+  )
+
+  // Test with unbounded max
+  let re3 = @regexp.compile!("[0-9]{2,}")
+  inspect!(
+    re3.matches("12345"),
+    content=
+      #|{success: true, captures: ["12345"], named_captures: {}}
+    ,
+  )
+}
+
+///|
+test "should handle dash in character classes" {
+  // This should test dash in character classes
+  let re = @regexp.compile!("[-a]")
+  inspect!(
+    re.matches("-"),
+    content=
+      #|{success: true, captures: ["-"], named_captures: {}}
+    ,
+  )
+}
+
+///|
+test "should handle complex repetition cases" {
+  // Test with lazy matching of NotSingleLoop
+  let re = @regexp.compile!("[^a]*?")
+  inspect!(
+    re.matches("bcd"),
+    content=
+      #|{success: true, captures: [""], named_captures: {}}
+    ,
+  )
+
+  // Test with ClassLazy and multiple matches
+  let re2 = @regexp.compile!("[0-9]+?[a-z]")
+  inspect!(
+    re2.matches("123a456b"),
+    content=
+      #|{success: true, captures: ["123a"], named_captures: {}}
+    ,
+  )
+
+  // Test with SingleLazy and backtracking
+  let re3 = @regexp.compile!("a+?b")
+  inspect!(
+    re3.matches("aab"),
+    content=
+      #|{success: true, captures: ["aab"], named_captures: {}}
+    ,
+  )
+}
+
+///|
+test "should handle non-capturing groups with explicit flags" {
+  // Test non-capturing group with a colon
+  let re = @regexp.compile!("(?:abc)")
+  inspect!(
+    re.matches("abc"),
+    content=
+      #|{success: true, captures: ["abc"], named_captures: {}}
+    ,
+  )
+
+  // Test non-capturing group with alternation
+  let re2 = @regexp.compile!("(?:a|b)c")
+  inspect!(
+    re2.matches("ac"),
+    content=
+      #|{success: true, captures: ["ac"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    re2.matches("bc"),
+    content=
+      #|{success: true, captures: ["bc"], named_captures: {}}
+    ,
+  )
+}
+
+///|
+test "should handle complex character classes" {
+  // Test character class with ranges and individual characters
+  let re = @regexp.compile!("[a-z0-9_]")
+  inspect!(
+    re.matches("a"),
+    content=
+      #|{success: true, captures: ["a"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    re.matches("5"),
+    content=
+      #|{success: true, captures: ["5"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    re.matches("_"),
+    content=
+      #|{success: true, captures: ["_"], named_captures: {}}
+    ,
+  )
+
+  // Test inverted class
+  let re2 = @regexp.compile!("[^0-9]")
+  inspect!(
+    re2.matches("a"),
+    content=
+      #|{success: true, captures: ["a"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    re2.matches("5"),
+    content=
+      #|{success: false, captures: [""], named_captures: {}}
+    ,
+  )
+}
+
+///|
+test "should handle named captures" {
+  let re = @regexp.compile!("(?<name>a)")
+  let result = re.matches("a")
+  inspect!(
+    result,
+    content=
+      #|{success: true, captures: ["a", "a"], named_captures: {"name": "a"}}
+    ,
+  )
+}
+
+///|
+test "panic UnmatchedGroupEnd" {
+  let _ = @regexp.compile!("a)")
+
+}
+
+///|
+test "panic UnmatchedCharClassEnd" {
+  let _ = @regexp.compile!("a]")
+
+}
+
+///|
+test "panic UnspecifiedLoopTarget" {
+  let _ = @regexp.compile!("*")
+
+}
+
+///|
+test "panic InvalidLoop" {
+  let _ = @regexp.compile!("a{}")
+
+}
+
+///|
+test "panic LoopCountOutOfRange" {
+  let _ = @regexp.compile!("a{999999999}")
+
+}
+
+///|
+test "panic LoopMaxCountSmallerThanMinCount" {
+  let _ = @regexp.compile!("a{5,3}")
+
+}
+
+///|
+test "panic UnmatchedGroupBegin" {
+  let _ = @regexp.compile!("(")
+
+}
+
+///|
+test "panic EmptyGroupName" {
+  let _ = @regexp.compile!("(?<>a)")
+
+}
+
+///|
+test "panic EmptyGroup" {
+  let _ = @regexp.compile!("()")
+
+}
+
+///|
+test "panic GroupMissingParen" {
+  let _ = @regexp.compile!("(abc")
+
+}
+
+///|
+test "panic UnmatchedGroupName" {
+  let _ = @regexp.compile!("(?<name")
+
+}
+
+///|
+test "panic ClassMissingBracket" {
+  let _ = @regexp.compile!("[abc")
+
+}
+
+///|
+test "panic EndPatternAtEscape" {
+  let _ = @regexp.compile!("\\")
+
+}
+
+///|
+test "should handle empty pattern alternation" {
+  let re = @regexp.compile!("a|")
+  inspect!(
+    re.matches("a"),
+    content=
+      #|{success: true, captures: ["a"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    re.matches(""),
+    content=
+      #|{success: true, captures: [""], named_captures: {}}
+    ,
+  )
+}
+
+///|
+test "should handle empty pattern" {
+  let re = @regexp.compile!("")
+  inspect!(
+    re.matches(""),
+    content=
+      #|{success: true, captures: [""], named_captures: {}}
+    ,
+  )
+}
+
+///|
+test "should handle escaped special characters in character classes" {
+  let re = @regexp.compile!("[\\t\\r\\n]")
+  inspect!(
+    re.matches("\t"),
+    content=
+      #|{success: true, captures: ["\t"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    re.matches("\r"),
+    content=
+      #|{success: true, captures: ["\r"], named_captures: {}}
+    ,
+  )
+  inspect!(
+    re.matches("\n"),
+    content=
+      #|{success: true, captures: ["\n"], named_captures: {}}
+    ,
+  )
+}
+
+///|
+test "should handle custom escape characters in character classes" {
+  // Test with a custom escape character in a character class
+  let re = @regexp.compile!("[\\x]")
+  inspect!(
+    re.matches("x"),
+    content=
+      #|{success: true, captures: ["x"], named_captures: {}}
+    ,
+  )
+}
+
+///|
+test "should handle backslashed characters in character classes" {
+  let re = @regexp.compile!("[\\\\]")
+  inspect!(
+    re.matches("\\"),
+    content=
+      #|{success: true, captures: ["\\"], named_captures: {}}
+    ,
+  )
+}
