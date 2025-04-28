@@ -54,3 +54,30 @@ jobs:
         run: |
           moon fmt
           git diff --exit-code
+  coverage:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - name: moon test
+        run: moon test --enable-coverage
+
+      - name: coverage report
+        run: |
+          moon coverage report -f summary > coverage_summary.txt
+          cat coverage_summary.txt >> "$GITHUB_STEP_SUMMARY"
+          moon coverage report \
+            -f coveralls \
+            -o codecov_report.json \
+            --service-name github \
+            --service-job-id "${{ github.run_number }}" \
+            --service-pull-request "${{ github.event.number }}" \
+            --send-to coveralls
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
