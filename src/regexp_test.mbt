@@ -653,20 +653,22 @@ test "should access match result captures" {
 ///|
 test "should handle BranchCount and BranchCountLazy opcodes" {
   // This pattern will use BranchCount when compiled
-  let re = @regexp.compile!("a{2,5}")
+  let re = @regexp.compile!("(?:abc){2,5}")
   inspect!(
-    re.matches("aa"),
+    re.matches("abcabc"),
     content=
-      #|{success: true, captures: ["aa"], named_captures: {}}
+      #|{success: true, captures: ["abcabc"], named_captures: {}}
+
     ,
   )
 
   // This pattern will use BranchCountLazy when compiled
-  let re_lazy = @regexp.compile!("a{2,5}?")
+  let re_lazy = @regexp.compile!("(?abc){2,5}?")
   inspect!(
-    re_lazy.matches("aaaaa"),
+    re_lazy.matches("abcabcabc"),
     content=
-      #|{success: true, captures: ["aa"], named_captures: {}}
+      #|{success: true, captures: ["abcabc", "abc"], named_captures: {}}
+
     ,
   )
 }
@@ -1235,6 +1237,83 @@ test "should handle named captures with complex patterns" {
     @regexp.compile!("(?<outer>a(?<inner>b+)c)").matches("abbc"),
     content=
       #|{success: true, captures: ["abbc", "abbc", "bb"], named_captures: {"outer": "abbc", "inner": "bb"}}
+    ,
+  )
+}
+
+test "should handle complex nested groups with lookahead and quantifiers" {
+  // Complex nested groups
+  inspect!(
+    @regexp.compile!("((a{2,3})b+)*(c?)").matches("aabaabc"),
+    content=
+      #|{success: true, captures: ["aabaabc", "aab", "aa", "c"], named_captures: {}}
+    ,
+  )
+
+  // Multiple groups with alternations
+  inspect!(
+    @regexp.compile!("(a|b)*c((d|e){2,3})(f|g)?").matches("abcddef"),
+    content=
+      #|{success: true, captures: ["abcddef", "b", "dde", "e", "f"], named_captures: {}}
+    ,
+  )
+}
+
+test "should handle complex named captures with nested groups" {
+  // Nested named captures with quantifiers
+  inspect!(
+    @regexp.compile!(
+      "(?<outer>a(?<middle>b(?<inner>c{1,2})d)*e)f",
+    ).matches("abcdbcdef"),
+    content=
+      #|{success: true, captures: ["abcdbcdef", "abcdbcde", "bcd", "c"], named_captures: {"outer": "abcdbcde", "middle": "bcd", "inner": "c"}}
+    ,
+  )
+
+  // Multiple named captures with alternations
+  inspect!(
+    @regexp.compile!(
+      "(?<first>[0-9]+)(?<sep>[,-]?)(?<second>[a-z]+)",
+    ).matches("123-abc"),
+    content=
+      #|{success: true, captures: ["123-abc", "123", "-", "abc"], named_captures: {"first": "123", "sep": "-", "second": "abc"}}
+    ,
+  )
+}
+
+test "should handle complex lazy and greedy quantifier interactions" {
+  // Lazy and greedy quantifier combinations
+  inspect!(
+    @regexp.compile!("(a+?b+)(a+b+?)").matches("aabaaab"),
+    content=
+      #|{success: true, captures: ["aabaaab", "aab", "aaab"], named_captures: {}}
+    ,
+  )
+
+  // Nested lazy quantifiers
+  inspect!(
+    @regexp.compile!("(a*?b+?)*(c*?)").matches("ababc"),
+    content=
+      #|{success: true, captures: ["abab", "ab", ""], named_captures: {}}
+
+    ,
+  )
+}
+
+test "should handle complex boundary conditions" {
+  // Mixed boundary conditions
+  inspect!(
+    @regexp.compile!("^([a-z]+?)([0-9]+)$").matches("abc123"),
+    content=
+      #|{success: true, captures: ["abc123", "abc", "123"], named_captures: {}}
+    ,
+  )
+
+  // Empty matches within groups
+  inspect!(
+    @regexp.compile!("(a*)(b*)(c*)").matches(""),
+    content=
+      #|{success: true, captures: ["", "", "", ""], named_captures: {}}
     ,
   )
 }
