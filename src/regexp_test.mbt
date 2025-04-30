@@ -109,13 +109,13 @@ test "should match escape" {
   inspect!(
     @regexp.compile!("\\v").matches("a\u000Bb"),
     content=
-      #|{success: true, captures: ["\x0b"], named_captures: {}}
+      #|{success: true, captures: ["\u{0b}"], named_captures: {}}
     ,
   )
   inspect!(
     @regexp.compile!("\\f").matches("a\u000Cb"),
     content=
-      #|{success: true, captures: ["\x0c"], named_captures: {}}
+      #|{success: true, captures: ["\u{0c}"], named_captures: {}}
     ,
   )
 }
