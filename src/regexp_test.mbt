@@ -658,7 +658,6 @@ test "should handle BranchCount and BranchCountLazy opcodes" {
     re.matches("abcabc"),
     content=
       #|{success: true, captures: ["abcabc"], named_captures: {}}
-
     ,
   )
 
@@ -668,7 +667,6 @@ test "should handle BranchCount and BranchCountLazy opcodes" {
     re_lazy.matches("abcabcabc"),
     content=
       #|{success: true, captures: ["abcabc", "abc"], named_captures: {}}
-
     ,
   )
 }
@@ -1231,7 +1229,7 @@ test "should handle named captures with complex patterns" {
       #|{success: true, captures: ["aabb", "aa", "bb"], named_captures: {"first": "aa", "second": "bb"}}
     ,
   )
-  
+
   // Test nested named captures
   inspect!(
     @regexp.compile!("(?<outer>a(?<inner>b+)c)").matches("abbc"),
@@ -1241,6 +1239,7 @@ test "should handle named captures with complex patterns" {
   )
 }
 
+///|
 test "should handle complex nested groups with lookahead and quantifiers" {
   // Complex nested groups
   inspect!(
@@ -1259,12 +1258,13 @@ test "should handle complex nested groups with lookahead and quantifiers" {
   )
 }
 
+///|
 test "should handle complex named captures with nested groups" {
   // Nested named captures with quantifiers
   inspect!(
-    @regexp.compile!(
-      "(?<outer>a(?<middle>b(?<inner>c{1,2})d)*e)f",
-    ).matches("abcdbcdef"),
+    @regexp.compile!("(?<outer>a(?<middle>b(?<inner>c{1,2})d)*e)f").matches(
+      "abcdbcdef",
+    ),
     content=
       #|{success: true, captures: ["abcdbcdef", "abcdbcde", "bcd", "c"], named_captures: {"outer": "abcdbcde", "middle": "bcd", "inner": "c"}}
     ,
@@ -1272,15 +1272,16 @@ test "should handle complex named captures with nested groups" {
 
   // Multiple named captures with alternations
   inspect!(
-    @regexp.compile!(
-      "(?<first>[0-9]+)(?<sep>[,-]?)(?<second>[a-z]+)",
-    ).matches("123-abc"),
+    @regexp.compile!("(?<first>[0-9]+)(?<sep>[,-]?)(?<second>[a-z]+)").matches(
+      "123-abc",
+    ),
     content=
       #|{success: true, captures: ["123-abc", "123", "-", "abc"], named_captures: {"first": "123", "sep": "-", "second": "abc"}}
     ,
   )
 }
 
+///|
 test "should handle complex lazy and greedy quantifier interactions" {
   // Lazy and greedy quantifier combinations
   inspect!(
@@ -1295,11 +1296,11 @@ test "should handle complex lazy and greedy quantifier interactions" {
     @regexp.compile!("(a*?b+?)*(c*?)").matches("ababc"),
     content=
       #|{success: true, captures: ["abab", "ab", ""], named_captures: {}}
-
     ,
   )
 }
 
+///|
 test "should handle complex boundary conditions" {
   // Mixed boundary conditions
   inspect!(
