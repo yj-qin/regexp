@@ -225,6 +225,23 @@ test "should parse alt" {
       #|
     ,
   )
+
+  inspect!(
+    test_parse!("a||b"),
+  content=
+    #|
+    #|Number of captures: 1
+    #|Capture name mapping: {}
+    #|Ast:
+    #|Capture 0
+    #|  Alternate
+    #|    Single 97
+    #|    Empty
+    #|    Single 98
+    #|
+
+
+  )
 }
 // #endregion
 

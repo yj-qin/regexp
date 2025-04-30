@@ -1119,3 +1119,122 @@ test "should handle backslashed characters in character classes" {
     ,
   )
 }
+
+///|
+test "should handle escape sequences within character classes" {
+  // Test backslash within character class
+  inspect!(
+    @regexp.compile!("[\\\\abc]").matches("\\"),
+    content=
+      #|{success: true, captures: ["\\"], named_captures: {}}
+    ,
+  )
+
+  // Test hyphen at the end of character class
+  inspect!(
+    @regexp.compile!("[abc-]").matches("-"),
+    content=
+      #|{success: true, captures: ["-"], named_captures: {}}
+    ,
+  )
+
+  // Test caret not at the beginning
+  inspect!(
+    @regexp.compile!("[a^b]").matches("^"),
+    content=
+      #|{success: true, captures: ["^"], named_captures: {}}
+    ,
+  )
+}
+
+///|
+test "should handle nested groups with quantifiers" {
+  // Test nested capturing groups
+  inspect!(
+    @regexp.compile!("((a)b(c))").matches("abc"),
+    content=
+      #|{success: true, captures: ["abc", "abc", "a", "c"], named_captures: {}}
+    ,
+  )
+
+  // Test nested groups with quantifiers
+  inspect!(
+    @regexp.compile!("((a+)b)+").matches("abaab"),
+    content=
+      #|{success: true, captures: ["abaab", "aab", "aa"], named_captures: {}}
+    ,
+  )
+}
+
+///|
+test "should handle complex alternations" {
+  // Test alternation with empty options
+  inspect!(
+    @regexp.compile!("a||b").matches(""),
+    content=
+      #|{success: true, captures: [""], named_captures: {}}
+    ,
+  )
+
+  // Test alternation with groups
+  inspect!(
+    @regexp.compile!("(a|b)(c|d)").matches("ac"),
+    content=
+      #|{success: true, captures: ["ac", "a", "c"], named_captures: {}}
+    ,
+  )
+
+  // Test alternation with different lengths
+  inspect!(
+    @regexp.compile!("abc|ab|a").matches("ab"),
+    content=
+      #|{success: true, captures: ["ab"], named_captures: {}}
+    ,
+  )
+}
+
+///|
+test "should handle boundary cases for quantifiers" {
+  // Test zero-width quantifier
+  inspect!(
+    @regexp.compile!("a{0}").matches(""),
+    content=
+      #|{success: true, captures: [""], named_captures: {}}
+    ,
+  )
+
+  // Test minimum boundary
+  inspect!(
+    @regexp.compile!("a{1,}").matches(""),
+    content=
+      #|{success: false, captures: [""], named_captures: {}}
+    ,
+  )
+
+  // Test exact boundary
+  inspect!(
+    @regexp.compile!("a{3,3}").matches("aaa"),
+    content=
+      #|{success: true, captures: ["aaa"], named_captures: {}}
+    ,
+  )
+}
+
+///|
+test "should handle named captures with complex patterns" {
+  // Test multiple named captures
+  inspect!(
+    @regexp.compile!("(?<first>a+)(?<second>b+)").matches("aabb"),
+    content=
+      #|{success: true, captures: ["aabb", "aa", "bb"], named_captures: {"first": "aa", "second": "bb"}}
+    ,
+  )
+  
+  // Test nested named captures
+  inspect!(
+    @regexp.compile!("(?<outer>a(?<inner>b+)c)").matches("abbc"),
+    content=
+      #|{success: true, captures: ["abbc", "abbc", "bb"], named_captures: {"outer": "abbc", "inner": "bb"}}
+    ,
+  )
+}

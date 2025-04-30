@@ -150,6 +150,10 @@ fn parse_expr(self : Parser, in_group : Bool) -> AstNode!ParseError {
     alt_node.add_child(node)
     while self.peek_is('|') {
       self.advance(1) // |
+      if (self.peek_is('|')) {
+        alt_node.add_child(AstNode::new(Empty))
+        continue
+      }
       alt_node.add_child(self.parse_concat!(in_group))
     }
     if not(in_group) && self.more() {
