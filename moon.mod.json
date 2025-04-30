@@ -4,6 +4,11 @@
   "readme": "README.md",
   "repository": "https://github.com/yj-qin/regexp",
   "license": "Apache-2.0",
-  "keywords": ["regexp", "regular", "expression"],
-  "description": "A regular expression library based on a backtracking engine."
+  "keywords": [
+    "regexp",
+    "regular",
+    "expression"
+  ],
+  "description": "A regular expression library based on a backtracking engine.",
+  "source": "src"
 }
