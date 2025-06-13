@@ -54,8 +54,8 @@ fn output_op(self : Program, pos : Int, logger : &Logger) -> Int {
     }
     Class => {
       let class_idx = self.bytecodes[pos + 1]
-      let class = self.classes[class_idx]
-      logger.write_string("\{opcode} \{class}")
+      let clazz = self.classes[class_idx]
+      logger.write_string("\{opcode} \{clazz}")
       size = 2
     }
     SingleRepeat
@@ -77,9 +77,9 @@ fn output_op(self : Program, pos : Int, logger : &Logger) -> Int {
     }
     ClassRepeat | ClassLoop | ClassLazy => {
       let class_idx = self.bytecodes[pos + 1]
-      let class = self.classes[class_idx]
+      let clazz = self.classes[class_idx]
       let opd2 = self.bytecodes[pos + 2]
-      logger.write_string("\{opcode} \{class} \{opd2}")
+      logger.write_string("\{opcode} \{clazz} \{opd2}")
       size = 3
     }
   }

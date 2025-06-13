@@ -4,11 +4,11 @@ priv enum AstNodeInternal {
   Empty
   Single(char~ : Char)
   NotSingle(char~ : Char)
-  Class(class~ : CharClass)
+  Class(clazz~ : CharClass)
   // Multi(~str : String)
   SingleLoop(char~ : Char, min~ : Int, max~ : Int?, greedy~ : Bool)
   NotSingleLoop(char~ : Char, min~ : Int, max~ : Int?, greedy~ : Bool)
-  ClassLoop(class~ : CharClass, min~ : Int, max~ : Int?, greedy~ : Bool)
+  ClassLoop(clazz~ : CharClass, min~ : Int, max~ : Int?, greedy~ : Bool)
   // Backreference(~index : Int)
   BeginOfInput
   EndOfInput
@@ -41,7 +41,7 @@ fn to_string(self : AstNodeInternal) -> String {
     Empty => "Empty"
     Single(char~) => "Single " + char.to_int().to_string()
     NotSingle(char~) => "NotSingle " + char.to_int().to_string()
-    Class(class~) => "Class " + class.to_string()
+    Class(clazz~) => "Class " + clazz.to_string()
     SingleLoop(char~, min~, max~, greedy~) =>
       "SingleLoop " +
       greedy_str(greedy) +
@@ -52,11 +52,11 @@ fn to_string(self : AstNodeInternal) -> String {
       greedy_str(greedy) +
       range_str(min, max) +
       char.to_int().to_string()
-    ClassLoop(class~, min~, max~, greedy~) =>
+    ClassLoop(clazz~, min~, max~, greedy~) =>
       "ClassLoop " +
       greedy_str(greedy) +
       range_str(min, max) +
-      class.to_string()
+      clazz.to_string()
     BeginOfInput => "BeginOfLine"
     EndOfInput => "EndOfLine"
     Alternate => "Alternate"
