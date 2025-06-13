@@ -1,13 +1,13 @@
 ///|
-fn test_parse(s : String) -> Ast!ParseError {
-  Parser::new(s).parse!()
+fn test_parse(s : String) -> Ast raise ParseError {
+  Parser::new(s).parse()
 }
 
 // #region single
 ///|
 test "should parse single char" {
-  inspect!(
-    test_parse!("a"),
+  inspect(
+    test_parse("a"),
     content=
       #|
       #|Number of captures: 1
@@ -22,8 +22,8 @@ test "should parse single char" {
 
 ///|
 test "should parse any char" {
-  inspect!(
-    test_parse!("."),
+  inspect(
+    test_parse("."),
     content=
       #|
       #|Number of captures: 1
@@ -38,8 +38,8 @@ test "should parse any char" {
 
 ///|
 test "should parse escape" {
-  inspect!(
-    test_parse!("\\s"),
+  inspect(
+    test_parse("\\s"),
     content=
       #|
       #|Number of captures: 1
@@ -50,8 +50,8 @@ test "should parse escape" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("\\S"),
+  inspect(
+    test_parse("\\S"),
     content=
       #|
       #|Number of captures: 1
@@ -62,8 +62,8 @@ test "should parse escape" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("\\d"),
+  inspect(
+    test_parse("\\d"),
     content=
       #|
       #|Number of captures: 1
@@ -74,8 +74,8 @@ test "should parse escape" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("\\D"),
+  inspect(
+    test_parse("\\D"),
     content=
       #|
       #|Number of captures: 1
@@ -86,8 +86,8 @@ test "should parse escape" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("\\w"),
+  inspect(
+    test_parse("\\w"),
     content=
       #|
       #|Number of captures: 1
@@ -98,8 +98,8 @@ test "should parse escape" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("\\W"),
+  inspect(
+    test_parse("\\W"),
     content=
       #|
       #|Number of captures: 1
@@ -110,8 +110,8 @@ test "should parse escape" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("\\n"),
+  inspect(
+    test_parse("\\n"),
     content=
       #|
       #|Number of captures: 1
@@ -122,8 +122,8 @@ test "should parse escape" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("\\r"),
+  inspect(
+    test_parse("\\r"),
     content=
       #|
       #|Number of captures: 1
@@ -134,8 +134,8 @@ test "should parse escape" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("\\f"),
+  inspect(
+    test_parse("\\f"),
     content=
       #|
       #|Number of captures: 1
@@ -146,8 +146,8 @@ test "should parse escape" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("\\v"),
+  inspect(
+    test_parse("\\v"),
     content=
       #|
       #|Number of captures: 1
@@ -158,8 +158,8 @@ test "should parse escape" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("\\t"),
+  inspect(
+    test_parse("\\t"),
     content=
       #|
       #|Number of captures: 1
@@ -170,8 +170,8 @@ test "should parse escape" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("\\*"),
+  inspect(
+    test_parse("\\*"),
     content=
       #|
       #|Number of captures: 1
@@ -189,8 +189,8 @@ test "should parse escape" {
 // #region concat
 ///|
 test "should parse concat" {
-  inspect!(
-    test_parse!("abc"),
+  inspect(
+    test_parse("abc"),
     content=
       #|
       #|Number of captures: 1
@@ -210,8 +210,8 @@ test "should parse concat" {
 // #region alt
 ///|
 test "should parse alt" {
-  inspect!(
-    test_parse!("a|b|c"),
+  inspect(
+    test_parse("a|b|c"),
     content=
       #|
       #|Number of captures: 1
@@ -225,8 +225,8 @@ test "should parse alt" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("a||b"),
+  inspect(
+    test_parse("a||b"),
     content=
       #|
       #|Number of captures: 1
@@ -246,8 +246,8 @@ test "should parse alt" {
 // #region repeat
 ///|
 test "should parse star" {
-  inspect!(
-    test_parse!("a*"),
+  inspect(
+    test_parse("a*"),
     content=
       #|
       #|Number of captures: 1
@@ -262,8 +262,8 @@ test "should parse star" {
 
 ///|
 test "should parse plus" {
-  inspect!(
-    test_parse!("a+"),
+  inspect(
+    test_parse("a+"),
     content=
       #|
       #|Number of captures: 1
@@ -278,8 +278,8 @@ test "should parse plus" {
 
 ///|
 test "should parse quest" {
-  inspect!(
-    test_parse!("a?"),
+  inspect(
+    test_parse("a?"),
     content=
       #|
       #|Number of captures: 1
@@ -294,8 +294,8 @@ test "should parse quest" {
 
 ///|
 test "should parse exact loop" {
-  inspect!(
-    test_parse!("a{2}"),
+  inspect(
+    test_parse("a{2}"),
     content=
       #|
       #|Number of captures: 1
@@ -310,8 +310,8 @@ test "should parse exact loop" {
 
 ///|
 test "should parse loop [min, max]" {
-  inspect!(
-    test_parse!("a{1,2}"),
+  inspect(
+    test_parse("a{1,2}"),
     content=
       #|
       #|Number of captures: 1
@@ -326,8 +326,8 @@ test "should parse loop [min, max]" {
 
 ///|
 test "should parse loop [min, infinity]" {
-  inspect!(
-    test_parse!("a{0,}"),
+  inspect(
+    test_parse("a{0,}"),
     content=
       #|
       #|Number of captures: 1
@@ -342,8 +342,8 @@ test "should parse loop [min, infinity]" {
 
 ///|
 test "should parse non-greedy" {
-  inspect!(
-    test_parse!("a*?"),
+  inspect(
+    test_parse("a*?"),
     content=
       #|
       #|Number of captures: 1
@@ -354,8 +354,8 @@ test "should parse non-greedy" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("a+?"),
+  inspect(
+    test_parse("a+?"),
     content=
       #|
       #|Number of captures: 1
@@ -366,8 +366,8 @@ test "should parse non-greedy" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("a??"),
+  inspect(
+    test_parse("a??"),
     content=
       #|
       #|Number of captures: 1
@@ -378,8 +378,8 @@ test "should parse non-greedy" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("a{0,2}?"),
+  inspect(
+    test_parse("a{0,2}?"),
     content=
       #|
       #|Number of captures: 1
@@ -394,17 +394,17 @@ test "should parse non-greedy" {
 
 ///|
 test "throws on invalid loop" {
-  inspect!(test_parse?("a{,1}"), content="Err(InvalidLoop(pos=2))")
-  inspect!(test_parse?("a{0,1"), content="Err(InvalidLoop(pos=5))")
-  inspect!(test_parse?("a{}"), content="Err(InvalidLoop(pos=2))")
+  inspect(try? test_parse("a{,1}"), content="Err(InvalidLoop(pos=2))")
+  inspect(try? test_parse("a{0,1"), content="Err(InvalidLoop(pos=5))")
+  inspect(try? test_parse("a{}"), content="Err(InvalidLoop(pos=2))")
 }
 // #endregion
 
 // #region class
 ///|
 test "should parse class" {
-  inspect!(
-    test_parse!("[abc]"),
+  inspect(
+    test_parse("[abc]"),
     content=
       #|
       #|Number of captures: 1
@@ -419,8 +419,8 @@ test "should parse class" {
 
 ///|
 test "should parse range class" {
-  inspect!(
-    test_parse!("[a-z]"),
+  inspect(
+    test_parse("[a-z]"),
     content=
       #|
       #|Number of captures: 1
@@ -431,8 +431,8 @@ test "should parse range class" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("[a-zA-Z]"),
+  inspect(
+    test_parse("[a-zA-Z]"),
     content=
       #|
       #|Number of captures: 1
@@ -443,8 +443,8 @@ test "should parse range class" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("[0-9]"),
+  inspect(
+    test_parse("[0-9]"),
     content=
       #|
       #|Number of captures: 1
@@ -459,8 +459,8 @@ test "should parse range class" {
 
 ///|
 test "should parse negated class" {
-  inspect!(
-    test_parse!("[^abc]"),
+  inspect(
+    test_parse("[^abc]"),
     content=
       #|
       #|Number of captures: 1
@@ -475,8 +475,8 @@ test "should parse negated class" {
 
 ///|
 test "should parse escape class" {
-  inspect!(
-    test_parse!("[A-Za-z\\s]"),
+  inspect(
+    test_parse("[A-Za-z\\s]"),
     content=
       #|
       #|Number of captures: 1
@@ -487,8 +487,8 @@ test "should parse escape class" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("[\\D1-3]"),
+  inspect(
+    test_parse("[\\D1-3]"),
     content=
       #|
       #|Number of captures: 1
@@ -499,8 +499,8 @@ test "should parse escape class" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("[\\f\\v]"),
+  inspect(
+    test_parse("[\\f\\v]"),
     content=
       #|
       #|Number of captures: 1
@@ -515,15 +515,15 @@ test "should parse escape class" {
 
 ///|
 test "throws on unclosed class" {
-  inspect!(test_parse?("[abc"), content="Err(ClassMissingBracket(pos=4))")
+  inspect(try? test_parse("[abc"), content="Err(ClassMissingBracket(pos=4))")
 }
 // #endregion
 
 // #region group
 ///|
 test "should parse group" {
-  inspect!(
-    test_parse!("(a)"),
+  inspect(
+    test_parse("(a)"),
     content=
       #|
       #|Number of captures: 2
@@ -535,8 +535,8 @@ test "should parse group" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("(a)(b)"),
+  inspect(
+    test_parse("(a)(b)"),
     content=
       #|
       #|Number of captures: 3
@@ -555,8 +555,8 @@ test "should parse group" {
 
 ///|
 test "should parse nested group" {
-  inspect!(
-    test_parse!("((a)bc)"),
+  inspect(
+    test_parse("((a)bc)"),
     content=
       #|
       #|Number of captures: 3
@@ -576,8 +576,8 @@ test "should parse nested group" {
 
 ///|
 test "should parse nested group concat" {
-  inspect!(
-    test_parse!("((a)(b))"),
+  inspect(
+    test_parse("((a)(b))"),
     content=
       #|
       #|Number of captures: 4
@@ -597,8 +597,8 @@ test "should parse nested group concat" {
 
 ///|
 test "should parse nested group alt" {
-  inspect!(
-    test_parse!("((a)|bc)"),
+  inspect(
+    test_parse("((a)|bc)"),
     content=
       #|
       #|Number of captures: 3
@@ -615,8 +615,8 @@ test "should parse nested group alt" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("((a)|(b))"),
+  inspect(
+    test_parse("((a)|(b))"),
     content=
       #|
       #|Number of captures: 4
@@ -636,8 +636,8 @@ test "should parse nested group alt" {
 
 ///|
 test "should parse non-capturing group" {
-  inspect!(
-    test_parse!("(?:a)"),
+  inspect(
+    test_parse("(?:a)"),
     content=
       #|
       #|Number of captures: 1
@@ -653,8 +653,8 @@ test "should parse non-capturing group" {
 
 ///|
 test "should parse named group" {
-  inspect!(
-    test_parse!("(?<group1>a)"),
+  inspect(
+    test_parse("(?<group1>a)"),
     content=
       #|
       #|Number of captures: 2
@@ -670,25 +670,25 @@ test "should parse named group" {
 
 ///|
 test "throws on unclosed group" {
-  inspect!(test_parse?("(abc"), content="Err(GroupMissingParen(pos=4))")
+  inspect(try? test_parse("(abc"), content="Err(GroupMissingParen(pos=4))")
 }
 
 ///|
 test "throws on empty group" {
-  inspect!(test_parse?("()"), content="Err(EmptyGroup(pos=1))")
+  inspect(try? test_parse("()"), content="Err(EmptyGroup(pos=1))")
 }
 
 ///|
 test "throws on empty group name" {
-  inspect!(test_parse?("(?<>abc)"), content="Err(EmptyGroupName(pos=4))")
+  inspect(try? test_parse("(?<>abc)"), content="Err(EmptyGroupName(pos=4))")
 }
 // #endregion
 
 // #region escape
 ///|
 test "should parse escape" {
-  inspect!(
-    test_parse!("\\*"),
+  inspect(
+    test_parse("\\*"),
     content=
       #|
       #|Number of captures: 1
@@ -699,8 +699,8 @@ test "should parse escape" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("\\+"),
+  inspect(
+    test_parse("\\+"),
     content=
       #|
       #|Number of captures: 1
@@ -711,8 +711,8 @@ test "should parse escape" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("\\?"),
+  inspect(
+    test_parse("\\?"),
     content=
       #|
       #|Number of captures: 1
@@ -723,8 +723,8 @@ test "should parse escape" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("\\a"),
+  inspect(
+    test_parse("\\a"),
     content=
       #|
       #|Number of captures: 1
@@ -741,8 +741,8 @@ test "should parse escape" {
 // #region common
 ///|
 test "should parse common regexp" {
-  inspect!(
-    test_parse!("^([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$"),
+  inspect(
+    test_parse("^([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$"),
     content=
       #|
       #|Number of captures: 3

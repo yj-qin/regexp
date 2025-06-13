@@ -120,7 +120,7 @@ fn chars_remain(self : Interpreter) -> Int {
 ///|
 fn next_char(self : Interpreter, text : String) -> Int {
   self.text_pos += 1
-  text[self.text_pos - 1].to_int()
+  text.charcode_at(self.text_pos - 1)
 }
 
 ///|
@@ -130,8 +130,8 @@ fn rewind(self : Interpreter) -> Unit {
 
 ///|
 fn char_in_class(self : Interpreter, class_idx : Int, char : Int) -> Bool {
-  let class = self.prog.classes[class_idx]
-  class.contains(char)
+  let clazz = self.prog.classes[class_idx]
+  clazz.contains(char)
 }
 
 ///|
@@ -594,8 +594,8 @@ fn try_match(self : Interpreter, text : String) -> Bool {
         let text_pos = self.track_pop()
         self.text_pos = text_pos
         let count = self.track_pop()
-        let class = self.prog.classes[self.operand(0)]
-        if class.contains(self.next_char(text)) {
+        let clazz = self.prog.classes[self.operand(0)]
+        if clazz.contains(self.next_char(text)) {
           if count > 0 {
             self.op_push()
             self.track_push(count - 1)

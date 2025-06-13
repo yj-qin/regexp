@@ -3,9 +3,9 @@ package "yj-qin/regexp"
 // Values
 fn captures(MatchResult) -> Array[String]
 
-fn compile(String) -> RegExp!
+fn compile(String) -> RegExp raise
 
-fn matches(RegExp, String, start~ : Int = .., end~ : Int = ..) -> MatchResult
+fn matches(RegExp, String, start~ : Int = .., end? : Int) -> MatchResult
 
 fn named_captures(MatchResult) -> Map[String, String]
 
@@ -15,14 +15,12 @@ fn success(MatchResult) -> Bool
 
 // Types and methods
 type MatchResult
-impl MatchResult {
-  captures(Self) -> Array[String]
-  named_captures(Self) -> Map[String, String]
-  success(Self) -> Bool
-}
+fn MatchResult::captures(Self) -> Array[String]
+fn MatchResult::named_captures(Self) -> Map[String, String]
+fn MatchResult::success(Self) -> Bool
 impl Show for MatchResult
 
-pub(all) type! ParseError {
+pub(all) suberror ParseError {
   InternalParserError
   UnmatchedGroupBegin(pos~ : Int)
   UnmatchedGroupEnd(pos~ : Int)
@@ -42,10 +40,8 @@ impl Eq for ParseError
 impl Show for ParseError
 
 type RegExp
-impl RegExp {
-  matches(Self, String, start~ : Int = .., end~ : Int = ..) -> MatchResult
-  pattern(Self) -> String
-}
+fn RegExp::matches(Self, String, start~ : Int = .., end? : Int) -> MatchResult
+fn RegExp::pattern(Self) -> String
 
 // Type aliases
 

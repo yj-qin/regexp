@@ -154,9 +154,9 @@ fn emit_fragment(
     (Group, _) => ()
     (Single(char~), _) => self.emit_1(Single, char.to_int())
     (NotSingle(char~), _) => self.emit_1(NotSingle, char.to_int())
-    (Class(class~), _) => {
+    (Class(clazz~), _) => {
       let idx = self.classes.length()
-      self.classes.push(class)
+      self.classes.push(clazz)
       self.emit_1(Class, idx)
     }
     (SingleLoop(char~, min~, max~, greedy~), _) => {
@@ -181,9 +181,9 @@ fn emit_fragment(
         None => self.emit_2(opcode, opd, @int.max_value)
       }
     }
-    (ClassLoop(class~, min~, max~, greedy~), _) => {
+    (ClassLoop(clazz~, min~, max~, greedy~), _) => {
       let idx = self.classes.length()
-      self.classes.push(class)
+      self.classes.push(clazz)
       if min > 0 {
         self.emit_2(ClassRepeat, idx, min)
       }

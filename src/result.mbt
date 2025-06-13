@@ -27,14 +27,14 @@ test "get captures" {
     captures: ["123456789", "123", "456", "789"],
     named_captures: { "a": "123", "b": "456", "c": "789" },
   }
-  inspect!(res.success(), content="true")
-  inspect!(
+  inspect(res.success(), content="true")
+  inspect(
     res.captures,
     content=
       #|["123456789", "123", "456", "789"]
     ,
   )
-  inspect!(
+  inspect(
     res.named_captures(),
     content=
       #|{"a": "123", "b": "456", "c": "789"}

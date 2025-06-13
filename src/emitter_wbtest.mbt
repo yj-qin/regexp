@@ -5,8 +5,8 @@ fn test_emit(ast : Ast) -> Program {
 
 ///|
 test "should emit single" {
-  inspect!(
-    test_parse!("a") |> test_emit(),
+  inspect(
+    test_parse("a") |> test_emit(),
     content=
       #|0 BranchLazy 7
       #|2 SetMark
@@ -20,8 +20,8 @@ test "should emit single" {
 
 ///|
 test "should emit concat" {
-  inspect!(
-    test_parse!("abc") |> test_emit(),
+  inspect(
+    test_parse("abc") |> test_emit(),
     content=
       #|0 BranchLazy 11
       #|2 SetMark
@@ -37,8 +37,8 @@ test "should emit concat" {
 
 ///|
 test "should emit alt" {
-  inspect!(
-    test_parse!("a|b|c") |> test_emit(),
+  inspect(
+    test_parse("a|b|c") |> test_emit(),
     content=
       #|0 BranchLazy 19
       #|2 SetMark
@@ -58,8 +58,8 @@ test "should emit alt" {
 
 ///|
 test "should emit loop" {
-  inspect!(
-    test_parse!("a*") |> test_emit(),
+  inspect(
+    test_parse("a*") |> test_emit(),
     content=
       #|0 BranchLazy 8
       #|2 SetMark
@@ -69,8 +69,8 @@ test "should emit loop" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("a+") |> test_emit(),
+  inspect(
+    test_parse("a+") |> test_emit(),
     content=
       #|0 BranchLazy 11
       #|2 SetMark
@@ -81,8 +81,8 @@ test "should emit loop" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("a?") |> test_emit(),
+  inspect(
+    test_parse("a?") |> test_emit(),
     content=
       #|0 BranchLazy 8
       #|2 SetMark
@@ -92,8 +92,8 @@ test "should emit loop" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("a{3}") |> test_emit(),
+  inspect(
+    test_parse("a{3}") |> test_emit(),
     content=
       #|0 BranchLazy 8
       #|2 SetMark
@@ -103,8 +103,8 @@ test "should emit loop" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("a{1,3}") |> test_emit(),
+  inspect(
+    test_parse("a{1,3}") |> test_emit(),
     content=
       #|0 BranchLazy 11
       #|2 SetMark
@@ -115,8 +115,8 @@ test "should emit loop" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("a{1,}") |> test_emit(),
+  inspect(
+    test_parse("a{1,}") |> test_emit(),
     content=
       #|0 BranchLazy 11
       #|2 SetMark
@@ -127,8 +127,8 @@ test "should emit loop" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("a*?") |> test_emit(),
+  inspect(
+    test_parse("a*?") |> test_emit(),
     content=
       #|0 BranchLazy 8
       #|2 SetMark
@@ -138,8 +138,8 @@ test "should emit loop" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("a+?") |> test_emit(),
+  inspect(
+    test_parse("a+?") |> test_emit(),
     content=
       #|0 BranchLazy 11
       #|2 SetMark
@@ -150,8 +150,8 @@ test "should emit loop" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("a??") |> test_emit(),
+  inspect(
+    test_parse("a??") |> test_emit(),
     content=
       #|0 BranchLazy 8
       #|2 SetMark
@@ -161,8 +161,8 @@ test "should emit loop" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("a{1,2}?") |> test_emit(),
+  inspect(
+    test_parse("a{1,2}?") |> test_emit(),
     content=
       #|0 BranchLazy 11
       #|2 SetMark
@@ -177,8 +177,8 @@ test "should emit loop" {
 
 ///|
 test "should emit class" {
-  inspect!(
-    test_parse!("[abc]") |> test_emit(),
+  inspect(
+    test_parse("[abc]") |> test_emit(),
     content=
       #|0 BranchLazy 7
       #|2 SetMark
@@ -188,8 +188,8 @@ test "should emit class" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("[^abc]") |> test_emit(),
+  inspect(
+    test_parse("[^abc]") |> test_emit(),
     content=
       #|0 BranchLazy 7
       #|2 SetMark
@@ -199,8 +199,8 @@ test "should emit class" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("[a-zA-Z0-9]") |> test_emit(),
+  inspect(
+    test_parse("[a-zA-Z0-9]") |> test_emit(),
     content=
       #|0 BranchLazy 7
       #|2 SetMark
@@ -214,8 +214,8 @@ test "should emit class" {
 
 ///|
 test "should emit group" {
-  inspect!(
-    test_parse!("(abc)") |> test_emit(),
+  inspect(
+    test_parse("(abc)") |> test_emit(),
     content=
       #|0 BranchLazy 14
       #|2 SetMark
@@ -229,8 +229,8 @@ test "should emit group" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("((a)bc)") |> test_emit(),
+  inspect(
+    test_parse("((a)bc)") |> test_emit(),
     content=
       #|0 BranchLazy 17
       #|2 SetMark
@@ -246,8 +246,8 @@ test "should emit group" {
       #|
     ,
   )
-  inspect!(
-    test_parse!("((a)|(b))") |> test_emit(),
+  inspect(
+    test_parse("((a)|(b))") |> test_emit(),
     content=
       #|0 BranchLazy 22
       #|2 SetMark
@@ -270,8 +270,8 @@ test "should emit group" {
 
 ///|
 test "should emit non-capturing group" {
-  inspect!(
-    test_parse!("(?:abc)") |> test_emit(),
+  inspect(
+    test_parse("(?:abc)") |> test_emit(),
     content=
       #|0 BranchLazy 11
       #|2 SetMark
@@ -287,8 +287,8 @@ test "should emit non-capturing group" {
 
 ///|
 test "should emit named group" {
-  inspect!(
-    test_parse!("(?<group1>abc)") |> test_emit(),
+  inspect(
+    test_parse("(?<group1>abc)") |> test_emit(),
     content=
       #|0 BranchLazy 14
       #|2 SetMark
@@ -306,8 +306,8 @@ test "should emit named group" {
 
 ///|
 test "should emit common pattern" {
-  let ast = test_parse!("^([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$")
-  inspect!(
+  let ast = test_parse("^([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$")
+  inspect(
     test_emit(ast),
     content=
       #|0 BranchLazy 35
